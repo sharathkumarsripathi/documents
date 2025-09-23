@@ -1,0 +1,98 @@
+Thanks for sharing the context and the flow diagram. I see the concern: paying **\$30K just for linking Smartsheet to Colab** sounds high, especially since Smartsheet is being used mainly as an **intermediate staging layer** (attachments, additional info, queues, emails, and storage) before getting data into Tableau.
+
+Here’s a structured proposal for a **cost-effective solution**:
+
+---
+
+## 🔎 Current Setup (High-Level)
+
+* **Colab → Smartsheet (multiple steps) → Tableau**
+* Smartsheet acts as:
+
+  * Storage & staging of data
+  * Handling extra fields/attachments
+  * Queue management
+  * Automated email triggers
+  * Historical archive
+* Tableau connector has a **4000 row limit**, creating scalability issues.
+
+---
+
+## 🚀 Alternative Approach (Eliminate Smartsheet Layer)
+
+### **Option 1: Colab → Alteryx → Tableau**
+
+* Use **Alteryx** as the transformation and automation hub.
+* Benefits:
+
+  * Can handle **data extract + enrichment** (currently done in Smartsheet Additional Data).
+  * Alteryx workflows can replace **queues** and **automated emails** (through native email automation).
+  * Can directly push **cleaned data into Tableau** (no 4000-row cap issue).
+  * Attachments (req/sample image) can be stored in **cloud storage (AWS S3, GDrive, or SFDC Files)** instead of Smartsheet.
+
+✅ **Pro:** Removes need for Smartsheet licenses + integration cost.
+✅ **Pro:** Scalable beyond 4000 rows.
+⚠️ **Con:** Alteryx Designer/Server licenses are not cheap (but likely less than \$30K over time if you already have Alteryx footprint).
+
+---
+
+### **Option 2: Colab → Salesforce (SFDC) → Tableau**
+
+* Push data directly from Colab into **Salesforce** (custom object).
+* Salesforce replaces Smartsheet functions:
+
+  * Additional fields = handled via SFDC object fields.
+  * Queues = built-in Salesforce assignment rules / workflows.
+  * Automated Emails = Salesforce workflow/email templates.
+  * Historical data = native SFDC reporting/audit trail.
+* Tableau can connect directly to SFDC (with no row cap issue if using Tableau’s Salesforce connector).
+
+✅ **Pro:** No Smartsheet at all.
+✅ **Pro:** Seamless if Salesforce is already central to your processes.
+⚠️ **Con:** Requires development/config effort in Salesforce (but far more extensible and cost-effective vs Smartsheet).
+
+---
+
+### **Option 3: Colab → Cloud Database → Tableau**
+
+* Store data directly into a **cloud database** (Snowflake, BigQuery, AWS RDS, etc.).
+* Use ETL (Alteryx, Python scripts, or even Tableau Prep) to enrich and push data.
+* Tableau connects directly to the database.
+* Email automation can be handled via **cloud functions (AWS Lambda, GCP Functions, etc.)** or Salesforce.
+
+✅ **Pro:** Scalable, no row limits.
+✅ **Pro:** Long-term enterprise-grade architecture.
+⚠️ **Con:** Initial setup effort (DB + ETL pipeline).
+
+---
+
+## 💡 Recommendation (Most Cost-Effective)
+
+Since you mentioned **“process in Smartsheet can be built into SFDC”**, the **SFDC-based solution** is the most cost-effective and future-proof:
+
+👉 **Proposed Flow**:
+**Colab → Salesforce (Custom Object + Workflows) → Tableau**
+
+* Salesforce handles **data enrichment, queues, emails, history**.
+* Tableau connects directly for reporting.
+* Smartsheet license costs + \$30K integration avoided.
+* Maintenance stays inside your **CRM ecosystem**, reducing complexity.
+
+---
+
+## 💰 Cost Perspective
+
+* **\$30K Smartsheet Integration** = sunk cost with limited scalability.
+* **SFDC custom object + workflow setup** = typically a **one-time config/dev cost** (likely less than \$10K–15K).
+* **Alteryx option** = scalable but may require ongoing license costs.
+* **Cloud DB option** = scalable but more infra overhead.
+
+---
+
+✅ **Best balance of cost + functionality:**
+**Colab → Salesforce (processes + storage) → Tableau**
+No Smartsheet needed.
+
+---
+
+Do you want me to **draw a replacement architecture diagram** (like the one you uploaded) showing the new Colab → SFDC → Tableau flow, so you can present it as a proposal?
