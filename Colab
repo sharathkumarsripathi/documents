@@ -1,98 +1,138 @@
-Thanks for sharing the context and the flow diagram. I see the concern: paying **\$30K just for linking Smartsheet to Colab** sounds high, especially since Smartsheet is being used mainly as an **intermediate staging layer** (attachments, additional info, queues, emails, and storage) before getting data into Tableau.
-
-Here’s a structured proposal for a **cost-effective solution**:
+Perfect 👌 — here’s how you can present **Option 1 (Colab → Salesforce)** and **Option 2 (Colab → Alteryx)** to your architecture team in a way that covers **end-to-end solution approaches**.
 
 ---
 
-## 🔎 Current Setup (High-Level)
+# ✅ **Option 1: Colab → Salesforce (Custom Object + Workflows) → Tableau**
 
-* **Colab → Smartsheet (multiple steps) → Tableau**
-* Smartsheet acts as:
+### **High-Level Flow**
 
-  * Storage & staging of data
-  * Handling extra fields/attachments
-  * Queue management
-  * Automated email triggers
-  * Historical archive
-* Tableau connector has a **4000 row limit**, creating scalability issues.
+1. **Data Capture**
 
----
+   * Colab generates structured data output (CSV, JSON, API payload).
 
-## 🚀 Alternative Approach (Eliminate Smartsheet Layer)
+2. **Data Ingestion into Salesforce**
 
-### **Option 1: Colab → Alteryx → Tableau**
+   * API integration or middleware pushes Colab output into **Salesforce Custom Object**.
+   * Custom Object schema designed to mirror current Smartsheet structure (fields for metadata, additional info, references).
 
-* Use **Alteryx** as the transformation and automation hub.
-* Benefits:
+3. **Attachments Handling**
 
-  * Can handle **data extract + enrichment** (currently done in Smartsheet Additional Data).
-  * Alteryx workflows can replace **queues** and **automated emails** (through native email automation).
-  * Can directly push **cleaned data into Tableau** (no 4000-row cap issue).
-  * Attachments (req/sample image) can be stored in **cloud storage (AWS S3, GDrive, or SFDC Files)** instead of Smartsheet.
+   * Colab file outputs (req docs, sample images) are pushed into **Salesforce Files or Attachments object**.
+   * Files are linked to the Custom Object record.
 
-✅ **Pro:** Removes need for Smartsheet licenses + integration cost.
-✅ **Pro:** Scalable beyond 4000 rows.
-⚠️ **Con:** Alteryx Designer/Server licenses are not cheap (but likely less than \$30K over time if you already have Alteryx footprint).
+4. **Additional Info**
 
----
+   * Extra columns in Smartsheet → mapped to **custom fields in Salesforce**.
+   * Validation rules ensure consistency (drop-downs, required fields, lookup relationships).
 
-### **Option 2: Colab → Salesforce (SFDC) → Tableau**
+5. **Queue Management**
 
-* Push data directly from Colab into **Salesforce** (custom object).
-* Salesforce replaces Smartsheet functions:
+   * Smartsheet queues → replaced by **Salesforce Assignment Rules / Queues**.
+   * Records routed automatically to appropriate team members based on rules.
 
-  * Additional fields = handled via SFDC object fields.
-  * Queues = built-in Salesforce assignment rules / workflows.
-  * Automated Emails = Salesforce workflow/email templates.
-  * Historical data = native SFDC reporting/audit trail.
-* Tableau can connect directly to SFDC (with no row cap issue if using Tableau’s Salesforce connector).
+6. **Email Automation**
 
-✅ **Pro:** No Smartsheet at all.
-✅ **Pro:** Seamless if Salesforce is already central to your processes.
-⚠️ **Con:** Requires development/config effort in Salesforce (but far more extensible and cost-effective vs Smartsheet).
+   * Salesforce **Workflow Rules / Process Builder / Flow** send automated emails.
+   * Emails can include file links or inline attachments.
 
----
+7. **Historical Data**
 
-### **Option 3: Colab → Cloud Database → Tableau**
+   * Salesforce retains all records with audit logs.
+   * Older Smartsheet history can be bulk imported.
 
-* Store data directly into a **cloud database** (Snowflake, BigQuery, AWS RDS, etc.).
-* Use ETL (Alteryx, Python scripts, or even Tableau Prep) to enrich and push data.
-* Tableau connects directly to the database.
-* Email automation can be handled via **cloud functions (AWS Lambda, GCP Functions, etc.)** or Salesforce.
+8. **Reporting**
 
-✅ **Pro:** Scalable, no row limits.
-✅ **Pro:** Long-term enterprise-grade architecture.
-⚠️ **Con:** Initial setup effort (DB + ETL pipeline).
+   * Tableau connects directly to Salesforce via **Tableau Salesforce Connector**.
+   * Structured data + file links available for visualization.
+   * Eliminates the 4000-row Smartsheet connector limit.
+
+### **Benefits**
+
+* Native handling of **attachments + structured data**.
+* Centralizes workflows in CRM (no extra Smartsheet license cost).
+* Extensible (can integrate with Service Cloud, Case Management, etc.).
+* Lower long-term cost vs \$30K Smartsheet integration.
 
 ---
 
-## 💡 Recommendation (Most Cost-Effective)
+# ✅ **Option 2: Colab → Alteryx → Tableau (with Cloud Storage for Attachments)**
 
-Since you mentioned **“process in Smartsheet can be built into SFDC”**, the **SFDC-based solution** is the most cost-effective and future-proof:
+### **High-Level Flow**
 
-👉 **Proposed Flow**:
-**Colab → Salesforce (Custom Object + Workflows) → Tableau**
+1. **Data Capture**
 
-* Salesforce handles **data enrichment, queues, emails, history**.
-* Tableau connects directly for reporting.
-* Smartsheet license costs + \$30K integration avoided.
-* Maintenance stays inside your **CRM ecosystem**, reducing complexity.
+   * Colab generates structured data (CSV, JSON, API payload).
+
+2. **Data Processing in Alteryx**
+
+   * Alteryx Designer/Server ingests data.
+   * Workflows enrich, clean, and transform data.
+   * Additional info (metadata, calculated fields) appended in workflow.
+
+3. **Attachments Handling**
+
+   * Attachments (req docs, sample images) are uploaded into **cloud storage**:
+
+     * **AWS S3, Azure Blob, GDrive, or SharePoint**.
+   * Alteryx workflow captures the **file link/URL** and maps it into the dataset.
+
+4. **Queue Management**
+
+   * Alteryx can apply logic (status, priority, ownership fields).
+   * Queue assignment → exported as structured field (but true “work queues” would need to be in another system like Salesforce or ticketing tool).
+
+5. **Email Automation**
+
+   * Alteryx can send notifications via SMTP, but limited compared to Salesforce.
+   * Recommended: send emails with **links to files** in cloud storage.
+
+6. **Historical Data**
+
+   * Alteryx writes transformed data into a **data warehouse (Snowflake/SQL Server/Redshift)** for history.
+   * Cloud storage retains all attachments.
+
+7. **Reporting**
+
+   * Tableau connects directly to:
+
+     * **Database (Snowflake/SQL/Redshift)** for structured data.
+     * File links open attachments stored in cloud.
+
+### **Benefits**
+
+* Very strong **data prep, transformation, and analytics automation**.
+* More flexible for **large datasets** and scalable beyond Salesforce object limits.
+* Decouples attachments → lighter DB + cloud file storage.
+
+### **Limitations**
+
+* Attachments not natively tied to records (separate system).
+* Email + queue handling weaker than Salesforce option.
+* Requires Alteryx licensing (Designer/Server cost).
 
 ---
 
-## 💰 Cost Perspective
+# 🔑 **Comparison Summary**
 
-* **\$30K Smartsheet Integration** = sunk cost with limited scalability.
-* **SFDC custom object + workflow setup** = typically a **one-time config/dev cost** (likely less than \$10K–15K).
-* **Alteryx option** = scalable but may require ongoing license costs.
-* **Cloud DB option** = scalable but more infra overhead.
+| Feature             | Option 1: Salesforce                                    | Option 2: Alteryx + Cloud Storage                       |
+| ------------------- | ------------------------------------------------------- | ------------------------------------------------------- |
+| **Attachments**     | Native (Files/Attachments object)                       | External storage (S3, GDrive, SharePoint) + URL mapping |
+| **Additional Info** | Custom fields in SFDC                                   | Added fields in Alteryx workflows                       |
+| **Queues**          | Native SFDC Queues                                      | Simulated in workflow (limited)                         |
+| **Emails**          | SFDC Workflows (robust)                                 | SMTP-based (basic)                                      |
+| **History**         | SFDC records + audit                                    | Database storage + file archive                         |
+| **Reporting**       | Tableau → SFDC connector                                | Tableau → Database + File links                         |
+| **Cost**            | One-time SFDC config (<\$15K est.)                      | Alteryx licensing + setup (\~higher recurring)          |
+| **Scalability**     | Good, but SFDC record/attachment limits                 | Excellent for big data                                  |
+| **Best For**        | CRM-centric org, need attachment + workflow integration | Data-heavy org, want flexible ETL + storage separation  |
 
 ---
 
-✅ **Best balance of cost + functionality:**
-**Colab → Salesforce (processes + storage) → Tableau**
-No Smartsheet needed.
+📌 **Recommendation for Approval**:
+
+* If attachments + workflow automation are **critical**, go with **Option 1 (Salesforce)**.
+* If the focus is **data enrichment + scale**, and attachments can live separately, go with **Option 2 (Alteryx + Cloud Storage)**.
 
 ---
 
-Do you want me to **draw a replacement architecture diagram** (like the one you uploaded) showing the new Colab → SFDC → Tableau flow, so you can present it as a proposal?
+Would you like me to also **redraw two separate architecture diagrams** (one for Option 1 and one for Option 2) so you can present them side by side to the architectural team?
