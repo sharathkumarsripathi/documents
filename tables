@@ -266,4 +266,9 @@ Primary Patient MRN|Last Name|First Name|Middle Name|Suffix|Preferred Name|Prefe
 
 123456|Jones|Matthew|Lee|Jr.|Matt|1|M|M|Straight|M|1/1/1990|555-55-5555|123 Main St|Apt 4|Madison|WI|53705|Dane|USA|555-555-5555|777-777-7777|888-888-8888|2/2/2021|Alive||Jones, Matt~Jones, Matthew L|noemail@noemail.com|Married|Black or African American|Decline to Answer|Methodist|English|234567||||444555~555666|848484~959595																															
 
+------------------------
+source application: MyQuest, PRS, ECPM, EMPI. each source application contains 1 or more tables. target application: EPIC. 
+it contains 1 table (Identity_Table) all the source application need to migrate there data into target application. 
 
+Prepare a single MDM source of truth table from all the source application tables. 
+map the fields from the single MDM to target applications Identity_table.
