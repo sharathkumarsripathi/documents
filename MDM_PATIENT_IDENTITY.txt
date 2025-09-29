@@ -1,0 +1,38 @@
+| Field Name            | Data Type     | Nullable | Notes (Source Columns)                                                    |
+| --------------------- | ------------- | -------- | ------------------------------------------------------------------------- |
+| MDM_PATIENT_ID        | NUMBER        | No       | Unique MDM ID (can be generated)                                          |
+| PRIMARY_PATIENT_MRN   | VARCHAR2(100) | No       | PRS.LOGIN_ID / MyQuest.USER_ID / ECPM.patient_master_id / EMPI.MEMRECNO   |
+| FIRST_NAME            | VARCHAR2(100) | No       | PRS.FIRST_NAME / MyQuest.PRS_FIRST_NAME / EMPI.ONMFIRST / ECPM.first_name |
+| LAST_NAME             | VARCHAR2(100) | No       | PRS.LAST_NAME / MyQuest.PRS_LAST_NAME / EMPI.ONMLAST / ECPM.last_name     |
+| MIDDLE_NAME           | VARCHAR2(50)  | Yes      | PRS.MIDDLE_INIT / EMPI.ONMMIDDLE / ECPM.middle_name                       |
+| SUFFIX                | VARCHAR2(40)  | Yes      | EMPI.ONMSUFFIX                                                            |
+| PREFERRED_NAME        | VARCHAR2(100) | Yes      | Not explicitly present – may be derived from nickname logic               |
+| PREFERRED_NAME_TYPE   | VARCHAR2(30)  | Yes      | Not explicitly present                                                    |
+| LEGAL_SEX             | CHAR(1)       | Yes      | PRS.GENDER_CODE / MyQuest.PRS_GENDER / ECPM.gender_code                   |
+| GENDER_IDENTITY       | VARCHAR2(60)  | Yes      | MyQuest.GENDER_PREFERENCE                                                 |
+| SEXUAL_ORIENTATION    | VARCHAR2(60)  | Yes      | MyQuest.SEXUAL_ORIENTATION                                                |
+| SEX_ASSIGNED_AT_BIRTH | VARCHAR2(10)  | Yes      | Not explicitly present                                                    |
+| DATE_OF_BIRTH         | DATE          | No       | PRS.DATE_OF_BIRTH / MyQuest.PRS_DATE_OF_BIRTH / ECPM.dob                  |
+| NATIONAL_IDENTIFIER   | VARCHAR2(100) | Yes      | PRS.SOCIAL_SECURITY_NUM / EMPI.MPI_MEMIDENT.IDNUMBER                      |
+| STREET_ADDRESS_1      | VARCHAR2(300) | Yes      | MyQuest.PRS_ADDRESS_1 / EMPI.STLINE1 / ECPM.address_line_1                |
+| STREET_ADDRESS_2      | VARCHAR2(300) | Yes      | MyQuest.PRS_ADDRESS_2 / EMPI.STLINE2 / ECPM.address_line_2                |
+| CITY                  | VARCHAR2(100) | Yes      | MyQuest.PRS_CITY / EMPI.CITY / ECPM.city_name                             |
+| STATE                 | VARCHAR2(60)  | Yes      | MyQuest.PRS_STATE / EMPI.STATE / ECPM.state_abbrev                        |
+| POSTAL_CODE           | VARCHAR2(50)  | Yes      | MyQuest.PRS_ZIP / EMPI.ZIPCODE / ECPM.zip_code                            |
+| COUNTY                | VARCHAR2(100) | Yes      | Possibly available via EMPI.GEOTEXT1 or derived                           |
+| COUNTRY               | VARCHAR2(100) | Yes      | EMPI.COUNTRY / ECPM.country_name                                          |
+| HOME_PHONE            | VARCHAR2(20)  | Yes      | MyQuest.PRS_PHONE / EMPI.PHNUMBER / ECPM.mobile_phone                     |
+| WORK_PHONE            | VARCHAR2(20)  | Yes      | May need to derive or designate phone type                                |
+| MOBILE_PHONE          | VARCHAR2(20)  | Yes      | MyQuest.PRS_PHONE / PRS_USERS.PHONE / EMPI.MEMPHONE                       |
+| LAST_VISIT_DATE       | DATE          | Yes      | Possibly from audit tables or PRS.LAST_LOGIN_DATE                         |
+| PATIENT_STATUS        | VARCHAR2(20)  | Yes      | MyQuest.ACTIVE_IND / ECPM.person_active_ind / PRS.PAT_PROFILE_ACTIVE_IND  |
+| DATE_OF_DEATH         | DATE          | Yes      | Not explicitly present in any source                                      |
+| ALIASES               | VARCHAR2(200) | Yes      | Could be derived from EMPI.ONM* fields or MAIDEN_NAME                     |
+| EMAIL_ADDRESS         | VARCHAR2(255) | Yes      | MyQuest.PRS_EMAIL_ID / PRS_USERS.EMAIL_ADDRESS / ECPM.email_address       |
+| MARITAL_STATUS        | VARCHAR2(20)  | Yes      | Not explicitly available                                                  |
+| RACE                  | VARCHAR2(60)  | Yes      | MyQuest.RACE / ECPM.race                                                  |
+| ETHNICITY             | VARCHAR2(60)  | Yes      | MyQuest.ETHNICITY / ECPM.ethnicity                                        |
+| RELIGION              | VARCHAR2(60)  | Yes      | Not explicitly available                                                  |
+| LANGUAGE              | VARCHAR2(60)  | Yes      | Not explicitly available                                                  |
+| SOURCE_SYSTEM         | VARCHAR2(30)  | No       | 'PRS', 'MyQuest', 'ECPM', 'EMPI'                                          |
+| SOURCE_RECORD_ID      | VARCHAR2(100) | No       | Original record ID in source (e.g., MEMRECNO, PATIENT_ID, person_id)      |
