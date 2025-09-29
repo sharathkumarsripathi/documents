@@ -1,0 +1,35 @@
+| **MDM Field**         | **EPIC Field (Identity_Table)**     | **Required** |
+| --------------------- | ----------------------------------- | ------------ |
+| PRIMARY_PATIENT_MRN   | Primary Patient MRN                 | Yes          |
+| LAST_NAME             | Last Name                           | Yes          |
+| FIRST_NAME            | First Name                          | Yes          |
+| MIDDLE_NAME           | Middle Name                         | No           |
+| SUFFIX                | Suffix                              | No           |
+| PREFERRED_NAME        | Preferred Name                      | No           |
+| PREFERRED_NAME_TYPE   | Preferred Name Type                 | No           |
+| LEGAL_SEX             | Legal Sex                           | Yes          |
+| GENDER_IDENTITY       | Gender Identity                     | No           |
+| SEXUAL_ORIENTATION    | Sexual Orientation                  | No           |
+| SEX_ASSIGNED_AT_BIRTH | Sex Assigned at Birth               | No           |
+| DATE_OF_BIRTH         | Date of Birth                       | Yes          |
+| NATIONAL_IDENTIFIER   | National Identifier                 | No           |
+| STREET_ADDRESS_1      | Street Address 1                    | No           |
+| STREET_ADDRESS_2      | Street Address 2                    | No           |
+| CITY                  | City                                | No           |
+| STATE                 | State                               | No           |
+| POSTAL_CODE           | Postal Code                         | No           |
+| COUNTY                | County                              | No           |
+| COUNTRY               | Country                             | No           |
+| HOME_PHONE            | Home Phone                          | No           |
+| WORK_PHONE            | Work Phone                          | No           |
+| MOBILE_PHONE          | Mobile Phone                        | No           |
+| LAST_VISIT_DATE       | Last Visit Date or Last Update Date | No           |
+| PATIENT_STATUS        | Patient Status                      | No           |
+| DATE_OF_DEATH         | Date of Death                       | No           |
+| ALIASES               | Aliases or Previous Names           | No           |
+| EMAIL_ADDRESS         | Email Address                       | No           |
+| MARITAL_STATUS        | Marital Status                      | No           |
+| RACE                  | Race                                | No           |
+| ETHNICITY             | Ethnic Group                        | No           |
+| RELIGION              | Religion                            | No           |
+| LANGUAGE              | Language                            | No           |

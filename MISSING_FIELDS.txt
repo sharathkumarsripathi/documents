@@ -1,0 +1,37 @@
+| #  | **Field Name**          | **Source Table**     | **Category**               | **Comments**                        |
+| -- | ----------------------- | -------------------- | -------------------------- | ----------------------------------- |
+| 1  | CREATED_BY              | All                  | System / Audit Metadata    | Audit trail, used for ETL lineage   |
+| 2  | MODIFIED_BY             | All                  | System / Audit Metadata    | Same as above                       |
+| 3  | DATE_CREATED            | All                  | System / Audit Metadata    | Internal timestamp                  |
+| 4  | DATE_MODIFIED           | All                  | System / Audit Metadata    | Internal timestamp                  |
+| 5  | INIT_PW_IND             | PRS.PATIENT_PROFILES | Security / Login Fields    | Not part of identity                |
+| 6  | LOGIN_ENABLED           | PRS.PATIENT_PROFILES | Security / Login Fields    | Access control                      |
+| 7  | PATIENT_LOGIN_PW        | PRS.PATIENT_PROFILES | Security / Login Fields    | Password – excluded                 |
+| 8  | PW_EXPIRE_ENABLED_IND   | PRS.PATIENT_PROFILES | Security / Login Fields    | Not needed in identity table        |
+| 9  | PW_RETRY_COUNT          | PRS.PATIENT_PROFILES | Security / Login Fields    | Login management                    |
+| 10 | CASE_SENSITIVE_IND      | PRS.PATIENT_PROFILES | Security / Login Fields    | Password policy – not identity      |
+| 11 | PAT_PROFILE_TYPE_ID     | PRS.PATIENT_PROFILES | System / Audit Metadata    | Internal classification             |
+| 12 | PAT_QPID                | PRS.PATIENT_PROFILES | Internal IDs / Keys        | Surrogate ID                        |
+| 13 | EID                     | MyQuest / PRS        | Internal IDs / Keys        | Used for matching only              |
+| 14 | PATIENT_ID              | MyQuest              | Internal IDs / Keys        | Might be used as MRN but not always |
+| 15 | PRS_PROFILE_ID          | MyQuest              | Internal IDs / Keys        | Local ID                            |
+| 16 | SOURCE_APP_NAME         | PRS.PATIENT_PROFILES | System / Audit Metadata    | Not in target                       |
+| 17 | PARENT_PATIENT_ID       | MyQuest              | Relationship / Account     | Parent-child relation, not in EPIC  |
+| 18 | RELATIONSHIP_CATEGORY   | MyQuest              | Relationship / Account     | Not used in identity schema         |
+| 19 | PRS_VERIFIED_SUBACCOUNT | MyQuest              | Relationship / Account     | Internal subaccount flag            |
+| 20 | EMAIL_VERIFICATION      | MyQuest              | Notification / Preferences | Not part of identity                |
+| 21 | ALERT_IND               | MyQuest              | Notification / Preferences | Not mapped                          |
+| 22 | ALERT_NOTIF_EMAIL       | MyQuest              | Notification / Preferences | Not used in target                  |
+| 23 | ALERT_NOTIF_HOURS       | MyQuest              | Notification / Preferences | Not mapped                          |
+| 24 | ENABLE_SS_MED           | MyQuest              | Misc / App Flags           | Not relevant to identity            |
+| 25 | BB_LINK_IND             | MyQuest              | Misc / App Flags           | Internal linkage                    |
+| 26 | WITHINGS_IND            | MyQuest              | Misc / App Flags           | App/device-related                  |
+| 27 | EMAIL_IND               | MyQuest              | Misc / App Flags           | Not in EPIC                         |
+| 28 | SIGNATURE               | ECPM.DUES_PERSONS    | Misc / Consent / Legal     | Not included in Identity_Table      |
+| 29 | PHONE_TYPE              | MyQuest              | Contact Detail (Granular)  | No direct mapping in EPIC           |
+| 30 | PRS_SECONDARY_PHONE     | MyQuest              | Contact Detail (Granular)  | No mapped field in EPIC             |
+| 31 | PHCMNT                  | EMPI.MEMPHONE        | Contact Detail (Granular)  | Phone comment – not mapped          |
+| 32 | PHEXTN                  | EMPI.MEMPHONE        | Contact Detail (Granular)  | Extension – not mapped              |
+| 33 | PHAREA                  | EMPI.MEMPHONE        | Contact Detail (Granular)  | Area code – not used separately     |
+| 34 | EMPLOYEE_ID             | PRS_USERS            | Internal IDs / HR Fields   | Not used in EPIC identity           |
+| 35 | BUSINESS_UNIT           | PRS_USERS            | Internal IDs / HR Fields   | Not part of identity                |
