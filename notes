@@ -1,124 +1,15 @@
-Create Matching Keys (Deterministic + Blocking)
-How it does:
-  Creates a helper table (STG_USER_KEYS) that stores different types of "matching keys" for each user record. These keys are used to identify potential duplicate or related records across different data sources.
-Types of keys:
-  Deterministic keys: PRS_PROFILE_ID, PATIENT_ID , These are unique identifiers from source systems. If two records share one of these, they are almost certainly the same person.
-  Strong exact/blocking keys: EMAIL, PHONE7, Exact matches on normalized email or last 7 digits of phone.
-  Tight blocks: NAMEZIP, STREETNAME, Used to group records that are similar but not exact matches, keeping candidate sets small for fuzzy matching.
-Why do we need it?
-  Efficiently narrows down the number of record pairs to compare. Reduces computational cost by only comparing records that share a key (i.e., are likely to be matches). Supports both exact and fuzzy matching strategies.
 
-Build User Pairs (Only Within Blocks)
-How it does:
-Creates a table (STG_MATCH_USERS) of all possible pairs of user records that share at least one matching key. Only pairs within the same block/key type are considered. Removes pairs where both records have a gender and the genders conflict.
-Why do we need it?
-Instead of comparing every record to every other record (which is slow and expensive), we only compare records that are likely to match (those sharing a key). This step prepares the data for the next phase: scoring the similarity of each pair (fuzzy matching). The gender check further reduces false positives by eliminating obviously mismatched pairs.
+1. Assignment (domain experience, Skillset)
+2. Indetityfing the reference architecture / referring solution / nearby solution
+
+3. T-Shirt, LOE , Recommended Tools
+	diagram based on cloud aws, Azure, GCP
+	LOE
+4. Help with HLD, artifacts, 
+
+1 slide on technologies used...
+1 slide basic usage
+1 slide 
 
 
-Fuzzy Score Each Pair (Dynamic Weights)
-How it does:
-For each candidate user pair (from blocking), calculates similarity scores for various fields (name, DOB, address, email, phone, etc.) using fuzzy matching algorithms like Jaro-Winkler and Edit Distance. Assigns dynamic weights to each field based on data availability (e.g., if both have DOB, DOB gets weight; if not, it doesn’t). Computes a final overall similarity score (0 to 1) for each pair.
-Why do we need it?
-Not all duplicates are exact matches; fuzzy scoring lets us catch records that are very similar but not identical (e.g., typos, nicknames, address variations). Dynamic weights ensure the score is fair and robust even if some fields are missing. This step is essential for high-quality deduplication, especially when integrating data from multiple, messy sources.
-
-Creating a second staging table using fuzzy logic based on matching fields (phone, address, first/middle/last name, email, DOB) across all tables from all databases.
-Trying to find the matching user records from the available records based on the fuzzy logic.
-
-For each strong pair (deterministic match or fuzzy score ≥ 0.90), decides which record to keep and which to drop:
-Prefer PRS records over others. If both are PRS, keep the latest-created.
-If neither is PRS, keep the latest-created or, if tied, the one with the lower STG_ID.
-Stores the STG_ID of the "loser" (the record to drop) in the  table.
-
-Creates a view (STG_USER_SOT) or table (SOT_USER) containing only the records not listed in DEDUP_DUPLICATES.
-
------------
-Identity is Epic's Enterprise Master Patient Index (known as an EMPI or MPI) controls ID management and lets users correctly identify records even if each record has more than one type of ID. Identity helps you find the correct record by maintaining an index of all IDs for each record, which is essential for preventing duplicate patient records.
-  Preventing, reporting on, merging and unmerging duplicate records.
-  Reviewing changes made to IDs.
-  Controlling how IDs are displayed and generated within your organization.
-Benefits
-  Reduces duplicate records to increase quality, accuracy, and continuity of patient care.
-  Supports the maintenance of IDs for non-patient entities such as providers, procedures, immunizations, and hospital accounts.
--------------------------------
-The Most Critical Topics to Master:
-🔥 TOP PRIORITY:
-Patient Load Process - This is the foundation of everything
-Duplicate Management - Patient safety depends on this
-Validation Process - Prevents data corruption issues
-🎯 Key Takeaways for Your Preparation:
-Patient Load is Iterative: It's not a one-time event. You'll do multiple loads, cleanup, validation cycles before going live.
-
-Time Management: Start early! Duplicate cleanup can take much longer than expected (5 minutes per pair × thousands of pairs = significant time).
-
-Validation is Critical: Epic emphasizes "validate more than you think is necessary" - this prevents major issues later.
-
-Duplicate Rate Impact: A high duplicate rate affects patient safety, care quality, and user satisfaction. Clean it up before go-live.
-
-Staffing Reality: Plan for dedicated resources. One person spending 25-50% time for setup, plus dedicated duplicate cleanup resources.
--------------------------------------
-
-
-Based on the Epic Identity documentation, here are the tools available to eliminate duplicate records:
-
-Epic Identity Duplicate Elimination Tools
-1. Prevention Tools
-Real-time Duplicate Checking: Automatically searches for potential duplicates when creating new patient records
-Pre-save Validation: Flags potential duplicates before changes are saved to patient information
-2. Detection Tools
-Duplicate Configuration Records: Customizable matching algorithms that weight similarities between patient records
-Identity Duplicate Algorithm: Epic's comprehensive matching system that includes:
-Misspelled or flipped names
-Transposed digits
-Date of birth ranges
-Multiple demographic field combinations
-3. Analysis and Review Tools
-Potential Duplicate Workqueues: Provides data integrity specialists with organized worklists of potential duplicates
-Duplicate Reports: Detailed reports showing matching vectors, confidence weights, and common information
-Identity Manager Activity: Shows all identification information including merges, overlays, and known non-duplicates
-4. Resolution Tools
-Automated Resolution
-Auto-merge by Weight: Automatically merges records meeting specific confidence thresholds
-Merge by Vector: Auto-merges based on specific combinations of matching criteria (regardless of overall weight)
-Known Non-Duplicate by Vector: Automatically marks certain combinations as verified non-duplicates
-Manual Resolution
-Patient Merge Activity: Combines two patient records determined to be duplicates
-Source patient (duplicate) merged into target patient (true record)
-All accounts and coverages preserved
-Target information overwrites source by default
-Mark for Merge: Allows users to flag potential duplicates for review by data integrity staff
-5. Correction and Recovery Tools
-Patient Unmerge Activity: Restores mistakenly merged patient records to pre-merge state
-Patient Contact Mover Activity: Moves encounters from incorrect patient record to correct patient record
-Resolution Tasks: Provides checklist of items requiring manual review after unmerges or contact moves
-6. Monitoring and Management Tools
-Chart Correction Workspace: Manages all chart correction tasks and communications
-Vector Rules: Advanced grouping system for faster, safer vector review
-Overlay Resolution Reports: Assists in resolving encounters after patient unmerges
-7. Workflow Integration Tools
-Patient Lookup Enhancement: Customizable search fields to improve patient identification
-Help Desk Integration: Built-in workflow for clinicians to report chart correction issues
-In Basket Messaging: Communication system for task assignments and approvals
-Key Features of These Tools:
-Comprehensive Matching Logic
-Name variations and misspellings
-Date ranges and transposed numbers
-Multiple demographic combinations
-Cross-system duplicate detection
-Flexible Automation
-Configurable confidence thresholds
-Custom vector combinations
-Automated workflow routing
-Bulk processing capabilities
-Safety Features
-Unmerge capability for mistakes
-Resolution task tracking
-Audit trails for all changes
-Manual override options
-Integration Capabilities
-Works with downstream systems
-Supports multiple ID types
-Handles cross-system duplicates
-Maintains referential integrity
-The tools work together in a comprehensive workflow: Prevention → Detection → Analysis → Resolution → Monitoring, ensuring both proactive duplicate prevention and reactive duplicate cleanup capabilities.
-
-
+EPIC have Enterprise Master Patient Index (EMPI). but it is seems to be a different from our side.
