@@ -1,255 +1,549 @@
-= HL7 Diff Tool
-John Emmanuel <john.x.emmanueljd@questdiagnostics.com>
-v1.0, September 2025: Initial release
-:showtitlepage:
-:notitle:
-:noheader:
-:nofooter:
-
-== Overview
-
-A tool to compare two HL7 message files and highlight differences based on configurable rules.
-
-=== Rules to be supported
-
-- compare by hl7 profiles (v2.5.1, v2.5, v2.3 etc)
-- highlight a particular field in every message
-- equalling or containing a certain value, or when it actually has any value
-- “not” indicator and highlight where it is not a certain value or doesn’t have a value
--  highlight a date field, I get options that are more suitable to date values, such as greater than or less than
--  red colour highlight is reserved for invalid values,  
-- trim spaces
-- ignore spaces
-- ignore blank lines
-- ignore case
-- ignore EOL differences
-- align similar lines
-- ignore missing trailing EOL
-- ignore comment differences
-- ignore extra records from either file
-- ignore segments empty trailing fields
-- ignore fields with specific patterns (Patterns have to be separated by comma)
-- ignore specific segments and fields
-- ignore trailing component separators
-- apply filters using all records / different records only
-
-== Design Notes
-
-=== Domain Model
-
-- HL7Message
-
-Represents a parsed HL7 message. Internally stores segments and fields in a structured format (e.g., a dictionary or tree).
-
-[source,java]
-----
-public class HL7Message {
-    private List<HL7Segment> segments;
-
-    public static HL7Message parse(String rawMessage);
-    public List<HL7Segment> getSegments();
-}
-----
-
-- HL7Segment
-
-Represents a single segment (MSH|...,PID|...,etc.) with fields
-
-[source,java]
-----
-public class HL7Segment {
-    private String name;
-    private List<String> fields;
-
-    public String getName();
-    public List<String> getFields();
-}
-----
-
-
-=== Comparison Engine
-
-- HL7Comparator
-
-Entry point for comparing two HL7 messages.
-
-[source,java]
-----
-public class HL7Comparator {
-    private List<ComparisonRule> rules;
-
-    public ComparisonResult compare(HL7Message msg1, HL7Message msg2);
-    public void addRule(ComparisonRule rule);
-}
-----
-
-- ComparisonRule
-
-Interface for defining comparison rules.
-
-[source,java]
-----
-public interface ComparisonRule {
-    void apply(HL7ComparisonContext context);
-}
-----
-
-- HL7ComparisonContext
-
-Hold state during comparison, including messages and differences found.
-
-[source,java]
-----
-public class HL7ComparisonContext {
-    private HL7Message msg1;
-    private HL7Message msg2;
-    private List<ComparisonDifference> differences;
-
-    public void addDifference(ComparisonDifference diff);
-    public List<ComparisonDifference> getDifferences();
-}
-----
-
-- ComparisonDifference
-
-Encapsulates a single difference found during comparison.
-
-[source,java]
-----
-public class ComparisonDifference {
-    private String segmentName;
-    private int fieldIndex;
-    
-    private String leftValue;
-    private String rightValue;
-    
-    private TextRange leftRange;
-    private TextRange rightRange;
-    
-    private String description;
-}
-----
-
-- TextRange
-
-Represents start-end positions for highlighting differences (absolute or relative).
-
-[source,java]
-----
-public class TextRange {
-    private int startOffset;
-    private int endOffset;
-
-    public int length() { return endOffset - startOffset;}
-}
-----
-
-- ComparisonResult
-
-Encapsulates the overall result of a comparison.
-
-[source,java]
-----
-public class ComparisonResult {
-    private boolean equal;
-    private List<ComparisonDifference> differences;
-
-    public boolean isEqual();
-    public List<ComparisonDifference> getDifferences();
-}
-----
-
-== Highlighting Engine
-
-The engine consumes ComparisonResult and produces output for visualizations.
-
-[source,java]
-----
-public interface HighlightEngine {
-    public String render(String originalText, List<ComparisonDifference> differences);ComparisonResult result);
-}
-----
-
-=== Implementations
-
-- NoHighlightEngine - returns plain text.
-- ConsoleHighlightEngine - ANSI color codes for CLI.
-- HTMLHighlightEngine - Wraps differences in <span class="diff"> for web UIs.
-- JsonHighlightEngine - Produces structured JSON with marked ranges.
-- JUnitAssertHelper - Generates JUnit assertions for automated tests.
-
-=== Supported types of Highlighting
-Defines highlighting strategies.
-
-[source,java]
-----
-public enum HighlightType {
-    INLINE, // replaces in-line (html, ansi console)
-    BLOCK, // show blocks of text with diffs marked
-    STRUCTURED // JSON / object model highlighting
-}
-----
-
-== Workflow
-
-1. Parse raw messages into HL7Message objects using HL7Message.parse().
-
-2. Build comparator with desired rules.
-
-[source,java]
-----
-HL7Comparator comparator = new HL7Comparator(List.of(
-    new IgnoreWhitespaceRule(),
-    new IgnoreCaseRule(),
-    new IgnoreTrailingEmptyFieldsRule(),
-    new HighlightFieldRule("PID-5"), // Example: highlight patient name field
-    new DateComparisonRule("OBR-7"),   // Example: date field comparison
-    new IgnorePatternRule("\\d{14}")
-));
-----
-
-3. Run comparison.
-
-[source,java]
-----
-ComparisonResult result = comparator.compare(msg1, msg2);
-----
-
-4. Inspect results
-
-- result.isEqual() indicates if messages are equivalent based on rules.
-- List of differences can be formatted for display.
-
-== Adding new rules
-
-- Implement ComparisonRule interface.
-- Rules are chainable and can modify comparison context.
-- Could provide a DSL-like builder for configuring rules easily.
-
-[source,java]
-----
-HL7Comparator comparator = new HL7Comparator.Builder()
-    .ignoreWhitespace()
-    .ignoreBlankLines()
-    .ignoreTrailingEmptyFields()
-    .ignoreCase()
-    .highlightField("PID-5")
-    .ignorePattern("\\d{14}")
-    .allowExtraSegments()
-    .build();
-----
-
-== Advanced features
-
-- Segment alignment strategies:
-    - Strict order
-    - Flexible alignment (find best matching PID segments)
-- Pluggable difference reporters:
-    - Human-readable text
-    - JSON report for APIs
-    - JUnit assert helper for tests
-- Profiles:
-    - Predefined rule sets for common HL7 versions (2.3, 2.5, 2.5.1)
-    - Predefined rule sets (strict, lenient, tolerant)
-
-
+Difference in segment PID field 5
+Left: MOUSE^MINNIE^S
+Right: GUNN^BEBE
+Difference in segment MSH field 6
+Left: 20120411070545
+Right: 20120226102502
+Difference in segment MSH field 9
+Left: 59689
+Right: Q161522306T164850327
+Difference in segment PID field 2
+Left: 12345
+Right: 
+Difference in segment PID field 3
+Left: 12345^^^MIE&1.2.840.114398.1.100&ISO^MR
+Right: 000168674
+Difference in segment PID field 4
+Left: 
+Right: 000168674
+Difference in segment PID field 5
+Left: MOUSE^MINNIE^S
+Right: GUNN^BEBE
+Difference in segment PID field 7
+Left: 19240101
+Right: 19821201
+Difference in segment PID field 11
+Left: 123 MOUSEHOLE LN^^FORT WAYNE^IN^46808
+Right: 
+Difference in segment PID field 16
+Left: 
+Right: M
+Difference in segment PID field 19
+Left: 
+Right: 890-12-3456
+Difference in segment PID field 22
+Left: 
+Right: N
+Difference in segment PID field 30
+Left: 
+Right: N
+Difference in segment PV1 field 2
+Left: O
+Right: I
+Difference in segment PV1 field 4
+Left: 
+Right: EL
+Difference in segment PV1 field 7
+Left: 71^DUCK^DONALD
+Right: 00976^PHYSICIAN^DAVID^G
+Difference in segment PV1 field 8
+Left: 
+Right: 976^PHYSICIAN^DAVID^G
+Difference in segment PV1 field 9
+Left: 
+Right: 01055^PHYSICIAN^RUTH^K~02807^PHYSICIAN^ERIC^LEE~07019^GI^ASSOCIATES~01255^PHYSICIAN^ADAM^I~02084^PHYSICIAN^SAYED~01116^PHYSICIAN^NURUDEEN^A~01434^PHYSICIAN^DONNA^K~02991^PHYSICIAN^NICOLE
+Difference in segment PV1 field 10
+Left: 
+Right: MED
+Difference in segment PV1 field 14
+Left: 
+Right: 7
+Difference in segment PV1 field 17
+Left: 
+Right: 00976^PHYSICIAN^DAVID^G
+Difference in segment PV1 field 19
+Left: 12376
+Right: ^^^Chart ID^Vis
+Difference in segment PV1 field 44
+Left: 20120410160227
+Right: 20120127204900
+Difference in segment PV1 field 45
+Left: 
+Right: null
+Difference in segment PV1 field 46
+Left: 
+Right: null
+Difference in segment PV1 field 47
+Left: 
+Right: null
+Difference in segment PV1 field 48
+Left: 
+Right: null
+Difference in segment PV1 field 49
+Left: 
+Right: null
+Difference in segment PV1 field 50
+Left: 
+Right: null
+Difference in segment ORC field 3
+Left: 12376
+Right: 
+Difference in segment ORC field 10
+Left: 100^DUCK^DASIY
+Right: 
+Difference in segment ORC field 12
+Left: 71^DUCK^DONALD
+Right: 00976^PHYSICIAN^DAVID^G
+Difference in segment ORC field 13
+Left: ^^^
+Right: null
+Difference in segment ORC field 14
+Left: 
+Right: null
+Difference in segment ORC field 15
+Left: 20120411070545
+Right: null
+Difference in segment ORC field 16
+Left: 
+Right: null
+Difference in segment ORC field 17
+Left: 
+Right: null
+Difference in segment ORC field 18
+Left: 
+Right: null
+Difference in segment ORC field 19
+Left: 
+Right: null
+Difference in segment ORC field 20
+Left: 
+Right: null
+Difference in segment OBR field 2
+Left: 
+Right: 88855701^STDOM
+Difference in segment OBR field 3
+Left: 12376
+Right: 88855701
+Difference in segment OBR field 4
+Left: cbc^CBC
+Right: 4083023^PT
+Difference in segment OBR field 5
+Left: R
+Right: 
+Difference in segment OBR field 7
+Left: 20120410160227
+Right: 20120226095400
+Difference in segment OBR field 10
+Left: 22^GOOF^GOOFY
+Right: 
+Difference in segment OBR field 13
+Left: Fasting: No
+Right: 
+Difference in segment OBR field 14
+Left: 201204101625
+Right: 20120226101300
+Difference in segment OBR field 15
+Left: 
+Right: Blood
+Difference in segment OBR field 16
+Left: 71^DUCK^DONALD
+Right: 01255
+Difference in segment OBR field 20
+Left: 
+Right: 000002012057000145
+Difference in segment OBR field 22
+Left: 201204101630
+Right: 20120226102500
+Difference in segment OBR field 24
+Left: 
+Right: LA
+Difference in segment OBR field 27
+Left: ^^^^^R
+Right: 1^^^20120226040000^^R~^^^^^R
+Difference in segment OBR field 36
+Left: 
+Right: 20120226040000
+Difference in segment OBR field 37
+Left: 
+Right: null
+Difference in segment OBR field 38
+Left: 
+Right: null
+Difference in segment OBR field 39
+Left: 
+Right: null
+Difference in segment OBR field 40
+Left: 
+Right: null
+Difference in segment OBR field 41
+Left: 
+Right: null
+Difference in segment OBR field 42
+Left: 
+Right: null
+Difference in segment OBR field 43
+Left: 
+Right: null
+Difference in segment OBR field 44
+Left: 85025
+Right: null
+Difference in segment OBR field 45
+Left: 
+Right: null
+Difference in segment OBX field 3
+Left: wbc^Wbc^Local^6690-2^Wbc^LN
+Right: PT Patient^PT
+Difference in segment OBX field 5
+Left: 7.0
+Right: 22.5
+Difference in segment OBX field 6
+Left: /nl
+Right: second(s)
+Difference in segment OBX field 7
+Left: 3.8-11.0
+Right: 11.7-14.9
+Difference in segment OBX field 8
+Left: 
+Right: H
+Difference in segment OBX field 14
+Left: 20120410160227
+Right: 20120226102500
+Difference in segment OBX field 15
+Left: lab
+Right: 
+Difference in segment OBX field 16
+Left: 12^XYZ LAB
+Right: 1^SYSTEM^SYSTEM
+Difference in segment OBX field 17
+Left: 
+Right: null
+Difference in segment OBX field 3
+Left: neutros^Neutros^Local^770-8^Neutros^LN
+Right: PT (INR)^INR
+Difference in segment OBX field 5
+Left: 68
+Right: 1.94
+Difference in segment OBX field 6
+Left: %
+Right: 
+Difference in segment OBX field 7
+Left: 40-82
+Right: 
+Difference in segment OBX field 14
+Left: 20120410160227
+Right: 20120226102500
+Difference in segment OBX field 15
+Left: lab
+Right: 
+Difference in segment OBX field 16
+Left: 12^XYZ LAB
+Right: 1^SYSTEM^SYSTEM
+Difference in segment OBX field 17
+Left: 
+Right: null
+Difference in segment OBX field 1
+Left: 3
+Right: 1
+Difference in segment OBX field 2
+Left: NM
+Right: 
+Difference in segment OBX field 3
+Left: lymphs^Lymphs^Local^736-9^Lymphs^LN
+Right: The optimal INR therapeutic range for stable patients on oral anticoagulants is 2.0 - 3.0.  With mechanical heart valves,
+Difference in segment OBX field 4
+Left: 
+Right: null
+Difference in segment OBX field 5
+Left: 20
+Right: null
+Difference in segment OBX field 6
+Left: %
+Right: null
+Difference in segment OBX field 7
+Left: 11-47
+Right: null
+Difference in segment OBX field 8
+Left: 
+Right: null
+Difference in segment OBX field 9
+Left: 
+Right: null
+Difference in segment OBX field 10
+Left: 
+Right: null
+Difference in segment OBX field 11
+Left: F
+Right: null
+Difference in segment OBX field 12
+Left: 
+Right: null
+Difference in segment OBX field 13
+Left: 
+Right: null
+Difference in segment OBX field 14
+Left: 20120410160227
+Right: null
+Difference in segment OBX field 15
+Left: lab
+Right: null
+Difference in segment OBX field 16
+Left: 12^XYZ LAB
+Right: null
+Difference in segment OBX field 17
+Left: 
+Right: null
+Difference in segment OBX field 1
+Left: 4
+Right: 2
+Difference in segment OBX field 2
+Left: NM
+Right: 
+Difference in segment OBX field 3
+Left: monos^Monos^Local^5905-5^Monos^LN
+Right: the range is 2.5 - 3.5.
+Difference in segment OBX field 4
+Left: 
+Right: null
+Difference in segment OBX field 5
+Left: 16
+Right: null
+Difference in segment OBX field 6
+Left: %
+Right: null
+Difference in segment OBX field 7
+Left: 4-15
+Right: null
+Difference in segment OBX field 8
+Left: H
+Right: null
+Difference in segment OBX field 9
+Left: 
+Right: null
+Difference in segment OBX field 10
+Left: 
+Right: null
+Difference in segment OBX field 11
+Left: F
+Right: null
+Difference in segment OBX field 12
+Left: 
+Right: null
+Difference in segment OBX field 13
+Left: 
+Right: null
+Difference in segment OBX field 14
+Left: 20120410160227
+Right: null
+Difference in segment OBX field 15
+Left: lab
+Right: null
+Difference in segment OBX field 16
+Left: 12^XYZ LAB
+Right: null
+Difference in segment OBX field 17
+Left: 
+Right: null
+Difference in segment OBX field 1
+Left: 5
+Right: 3
+Difference in segment OBX field 2
+Left: NM
+Right: null
+Difference in segment OBX field 3
+Left: eo^Eos^Local^713-8^Eos^LN
+Right: null
+Difference in segment OBX field 4
+Left: 
+Right: null
+Difference in segment OBX field 5
+Left: 3
+Right: null
+Difference in segment OBX field 6
+Left: %
+Right: null
+Difference in segment OBX field 7
+Left: 0-8
+Right: null
+Difference in segment OBX field 8
+Left: 
+Right: null
+Difference in segment OBX field 9
+Left: 
+Right: null
+Difference in segment OBX field 10
+Left: 
+Right: null
+Difference in segment OBX field 11
+Left: F
+Right: null
+Difference in segment OBX field 12
+Left: 
+Right: null
+Difference in segment OBX field 13
+Left: 
+Right: null
+Difference in segment OBX field 14
+Left: 20120410160227
+Right: null
+Difference in segment OBX field 15
+Left: lab
+Right: null
+Difference in segment OBX field 16
+Left: 12^XYZ LAB
+Right: null
+Difference in segment OBX field 17
+Left: 
+Right: null
+Difference in segment OBX field 1
+Left: 6
+Right: 4
+Difference in segment OBX field 2
+Left: NM
+Right: 
+Difference in segment OBX field 3
+Left: baso^Baso^Local^706-2^Baso^LN
+Right: Studies published in NEJM show that patients treated long-term with low intensity warfarin therapy for prevention of recurrent
+Difference in segment OBX field 4
+Left: 
+Right: null
+Difference in segment OBX field 5
+Left: 0
+Right: null
+Difference in segment OBX field 6
+Left: %
+Right: null
+Difference in segment OBX field 7
+Left: 0-1
+Right: null
+Difference in segment OBX field 8
+Left: 
+Right: null
+Difference in segment OBX field 9
+Left: 
+Right: null
+Difference in segment OBX field 10
+Left: 
+Right: null
+Difference in segment OBX field 11
+Left: F
+Right: null
+Difference in segment OBX field 12
+Left: 
+Right: null
+Difference in segment OBX field 13
+Left: 
+Right: null
+Difference in segment OBX field 14
+Left: 20120410160227
+Right: null
+Difference in segment OBX field 15
+Left: lab
+Right: null
+Difference in segment OBX field 16
+Left: 12^XYZ LAB
+Right: null
+Difference in segment OBX field 17
+Left: 
+Right: null
+Difference in segment OBX field 1
+Left: 7
+Right: 5
+Difference in segment OBX field 2
+Left: NM
+Right: 
+Difference in segment OBX field 3
+Left: ig^Imm Gran^Local^38518-7^Imm Gran^LN
+Right: venous thromboembolism (with a target INR of 1.5 - 2.0) had a superior outcome.  These results were seen in patients after a median
+Difference in segment OBX field 4
+Left: 
+Right: null
+Difference in segment OBX field 5
+Left: 0
+Right: null
+Difference in segment OBX field 6
+Left: %
+Right: null
+Difference in segment OBX field 7
+Left: 0-2
+Right: null
+Difference in segment OBX field 8
+Left: 
+Right: null
+Difference in segment OBX field 9
+Left: 
+Right: null
+Difference in segment OBX field 10
+Left: 
+Right: null
+Difference in segment OBX field 11
+Left: F
+Right: null
+Difference in segment OBX field 12
+Left: 
+Right: null
+Difference in segment OBX field 13
+Left: 
+Right: null
+Difference in segment OBX field 14
+Left: 20120410160227
+Right: null
+Difference in segment OBX field 15
+Left: lab
+Right: null
+Difference in segment OBX field 16
+Left: 12^XYZ LAB
+Right: null
+Difference in segment OBX field 17
+Left: 
+Right: null
+Difference in segment OBX field 1
+Left: 8
+Right: 6
+Difference in segment OBX field 2
+Left: NM
+Right: 
+Difference in segment OBX field 3
+Left: rbc^Rbc^Local^789-8^Rbc^LN
+Right: 6 months of full dose anti-coagulation.
+Difference in segment OBX field 4
+Left: 
+Right: null
+Difference in segment OBX field 5
+Left: 4.02
+Right: null
+Difference in segment OBX field 6
+Left: /pl
+Right: null
+Difference in segment OBX field 7
+Left: 4.07-4.92
+Right: null
+Difference in segment OBX field 8
+Left: L
+Right: null
+Difference in segment OBX field 9
+Left: 
+Right: null
+Difference in segment OBX field 10
+Left: 
+Right: null
+Difference in segment OBX field 11
+Left: F
+Right: null
+Difference in segment OBX field 12
+Left: 
+Right: null
+Difference in segment OBX field 13
+Left: 
+Right: null
+Difference in segment OBX field 14
+Left: 20120410160227
+Right: null
+Difference in segment OBX field 15
+Left: lab
+Right: null
+Difference in segment OBX field 16
+Left: 12^XYZ LAB
+Right: null
+Difference in segment OBX field 17
+Left: 
+Right: null
