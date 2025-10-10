@@ -1,15 +1,255 @@
+= HL7 Diff Tool
+John Emmanuel <john.x.emmanueljd@questdiagnostics.com>
+v1.0, September 2025: Initial release
+:showtitlepage:
+:notitle:
+:noheader:
+:nofooter:
 
-1. Assignment (domain experience, Skillset)
-2. Indetityfing the reference architecture / referring solution / nearby solution
+== Overview
 
-3. T-Shirt, LOE , Recommended Tools
-	diagram based on cloud aws, Azure, GCP
-	LOE
-4. Help with HLD, artifacts, 
+A tool to compare two HL7 message files and highlight differences based on configurable rules.
 
-1 slide on technologies used...
-1 slide basic usage
-1 slide 
+=== Rules to be supported
+
+- compare by hl7 profiles (v2.5.1, v2.5, v2.3 etc)
+- highlight a particular field in every message
+- equalling or containing a certain value, or when it actually has any value
+- “not” indicator and highlight where it is not a certain value or doesn’t have a value
+-  highlight a date field, I get options that are more suitable to date values, such as greater than or less than
+-  red colour highlight is reserved for invalid values,  
+- trim spaces
+- ignore spaces
+- ignore blank lines
+- ignore case
+- ignore EOL differences
+- align similar lines
+- ignore missing trailing EOL
+- ignore comment differences
+- ignore extra records from either file
+- ignore segments empty trailing fields
+- ignore fields with specific patterns (Patterns have to be separated by comma)
+- ignore specific segments and fields
+- ignore trailing component separators
+- apply filters using all records / different records only
+
+== Design Notes
+
+=== Domain Model
+
+- HL7Message
+
+Represents a parsed HL7 message. Internally stores segments and fields in a structured format (e.g., a dictionary or tree).
+
+[source,java]
+----
+public class HL7Message {
+    private List<HL7Segment> segments;
+
+    public static HL7Message parse(String rawMessage);
+    public List<HL7Segment> getSegments();
+}
+----
+
+- HL7Segment
+
+Represents a single segment (MSH|...,PID|...,etc.) with fields
+
+[source,java]
+----
+public class HL7Segment {
+    private String name;
+    private List<String> fields;
+
+    public String getName();
+    public List<String> getFields();
+}
+----
 
 
-EPIC have Enterprise Master Patient Index (EMPI). but it is seems to be a different from our side.
+=== Comparison Engine
+
+- HL7Comparator
+
+Entry point for comparing two HL7 messages.
+
+[source,java]
+----
+public class HL7Comparator {
+    private List<ComparisonRule> rules;
+
+    public ComparisonResult compare(HL7Message msg1, HL7Message msg2);
+    public void addRule(ComparisonRule rule);
+}
+----
+
+- ComparisonRule
+
+Interface for defining comparison rules.
+
+[source,java]
+----
+public interface ComparisonRule {
+    void apply(HL7ComparisonContext context);
+}
+----
+
+- HL7ComparisonContext
+
+Hold state during comparison, including messages and differences found.
+
+[source,java]
+----
+public class HL7ComparisonContext {
+    private HL7Message msg1;
+    private HL7Message msg2;
+    private List<ComparisonDifference> differences;
+
+    public void addDifference(ComparisonDifference diff);
+    public List<ComparisonDifference> getDifferences();
+}
+----
+
+- ComparisonDifference
+
+Encapsulates a single difference found during comparison.
+
+[source,java]
+----
+public class ComparisonDifference {
+    private String segmentName;
+    private int fieldIndex;
+    
+    private String leftValue;
+    private String rightValue;
+    
+    private TextRange leftRange;
+    private TextRange rightRange;
+    
+    private String description;
+}
+----
+
+- TextRange
+
+Represents start-end positions for highlighting differences (absolute or relative).
+
+[source,java]
+----
+public class TextRange {
+    private int startOffset;
+    private int endOffset;
+
+    public int length() { return endOffset - startOffset;}
+}
+----
+
+- ComparisonResult
+
+Encapsulates the overall result of a comparison.
+
+[source,java]
+----
+public class ComparisonResult {
+    private boolean equal;
+    private List<ComparisonDifference> differences;
+
+    public boolean isEqual();
+    public List<ComparisonDifference> getDifferences();
+}
+----
+
+== Highlighting Engine
+
+The engine consumes ComparisonResult and produces output for visualizations.
+
+[source,java]
+----
+public interface HighlightEngine {
+    public String render(String originalText, List<ComparisonDifference> differences);ComparisonResult result);
+}
+----
+
+=== Implementations
+
+- NoHighlightEngine - returns plain text.
+- ConsoleHighlightEngine - ANSI color codes for CLI.
+- HTMLHighlightEngine - Wraps differences in <span class="diff"> for web UIs.
+- JsonHighlightEngine - Produces structured JSON with marked ranges.
+- JUnitAssertHelper - Generates JUnit assertions for automated tests.
+
+=== Supported types of Highlighting
+Defines highlighting strategies.
+
+[source,java]
+----
+public enum HighlightType {
+    INLINE, // replaces in-line (html, ansi console)
+    BLOCK, // show blocks of text with diffs marked
+    STRUCTURED // JSON / object model highlighting
+}
+----
+
+== Workflow
+
+1. Parse raw messages into HL7Message objects using HL7Message.parse().
+
+2. Build comparator with desired rules.
+
+[source,java]
+----
+HL7Comparator comparator = new HL7Comparator(List.of(
+    new IgnoreWhitespaceRule(),
+    new IgnoreCaseRule(),
+    new IgnoreTrailingEmptyFieldsRule(),
+    new HighlightFieldRule("PID-5"), // Example: highlight patient name field
+    new DateComparisonRule("OBR-7"),   // Example: date field comparison
+    new IgnorePatternRule("\\d{14}")
+));
+----
+
+3. Run comparison.
+
+[source,java]
+----
+ComparisonResult result = comparator.compare(msg1, msg2);
+----
+
+4. Inspect results
+
+- result.isEqual() indicates if messages are equivalent based on rules.
+- List of differences can be formatted for display.
+
+== Adding new rules
+
+- Implement ComparisonRule interface.
+- Rules are chainable and can modify comparison context.
+- Could provide a DSL-like builder for configuring rules easily.
+
+[source,java]
+----
+HL7Comparator comparator = new HL7Comparator.Builder()
+    .ignoreWhitespace()
+    .ignoreBlankLines()
+    .ignoreTrailingEmptyFields()
+    .ignoreCase()
+    .highlightField("PID-5")
+    .ignorePattern("\\d{14}")
+    .allowExtraSegments()
+    .build();
+----
+
+== Advanced features
+
+- Segment alignment strategies:
+    - Strict order
+    - Flexible alignment (find best matching PID segments)
+- Pluggable difference reporters:
+    - Human-readable text
+    - JSON report for APIs
+    - JUnit assert helper for tests
+- Profiles:
+    - Predefined rule sets for common HL7 versions (2.3, 2.5, 2.5.1)
+    - Predefined rule sets (strict, lenient, tolerant)
+
+
