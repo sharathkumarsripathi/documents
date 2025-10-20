@@ -1,0 +1,68 @@
+MSH ─ Message Header
+ ├─ NTE (optional, repeating – general message comments)
+ ├─ SFT (optional – system software info; sometimes omitted in 2.3.1)
+
+PID ─ Patient Identification
+ ├─ PD1 (optional – additional patient demographics)
+ ├─ NTE (optional, repeating – patient comments)
+ ├─ NK1 (optional, repeating – next of kin / associated parties)
+
+PV1 ─ Patient Visit
+ ├─ PV2 (optional – additional visit info)
+ ├─ NTE (optional, repeating – visit-level notes)
+ ├─ ROL (optional, repeating – practitioner or role info)
+ ├─ DG1 (optional, repeating – diagnosis info)
+ ├─ DRG (optional, repeating – diagnostic related group)
+ ├─ AL1 (optional, repeating – allergy info)
+ ├─ PR1 (optional, repeating – procedures)
+ ├─ GT1 (optional, repeating – guarantor)
+ ├─ IN1 (optional, repeating – insurance)
+ │   ├─ IN2 (optional – additional insurance info)
+ │   └─ IN3 (optional, repeating – certification info)
+ ├─ ACC (optional – accident info)
+ ├─ UB1 / UB2 (optional – billing data)
+ └─ Z-segments (custom site-specific extensions)
+
+ORC ─ Common Order (repeating group)
+ ├─ NTE (optional, repeating – order-level notes)
+ ├─ ROL (optional, repeating – role info)
+ ├─ OBR (observation request, repeating group)
+ │   ├─ NTE (optional, repeating – order notes)
+ │   ├─ ROL (optional, repeating)
+ │   ├─ OBX (observation result, repeating)
+ │   │   ├─ NTE (optional, repeating – observation comments)
+ │   ├─ TCD (optional – test code details)
+ │   ├─ SPM (optional – specimen info)
+ │   │   ├─ OBX (optional, repeating – specimen observation)
+ │   │   │   └─ NTE (optional, repeating)
+ │   ├─ SAC (optional, repeating – specimen containers)
+ │   ├─ FT1 (optional, repeating – financial transactions)
+ │   └─ Z-segments (optional – custom extensions)
+ ├─ FT1 (optional, repeating)
+ └─ Z-segments (optional)
+OBX ─ Observation/Result (if not within OBR)
+ ├─ NTE (optional, repeating – observation-level notes)
+
+DG1 ─ Diagnosis (optional, repeating)
+ ├─ NTE (optional, repeating – diagnosis-level notes)
+
+AL1 ─ Allergy (optional, repeating)
+ ├─ NTE (optional, repeating – allergy comments)
+
+PR1 ─ Procedure (optional, repeating)
+ ├─ NTE (optional, repeating – procedure comments)
+
+GT1 ─ Guarantor (optional, repeating)
+ ├─ NTE (optional, repeating – guarantor comments)
+
+IN1 ─ Insurance (optional, repeating)
+ ├─ IN2 (optional)
+ ├─ IN3 (optional, repeating)
+ └─ NTE (optional, repeating)
+
+ACC ─ Accident (optional)
+ ├─ NTE (optional, repeating)
+
+UB1 ─ Universal Bill (optional)
+UB2 ─ Universal Bill 2 (optional)
+Zxx ─ Site-specific custom segment(s)
