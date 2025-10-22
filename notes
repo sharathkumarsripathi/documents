@@ -1,549 +1,77 @@
-Difference in segment PID field 5
-Left: MOUSE^MINNIE^S
-Right: GUNN^BEBE
-Difference in segment MSH field 6
-Left: 20120411070545
-Right: 20120226102502
-Difference in segment MSH field 9
-Left: 59689
-Right: Q161522306T164850327
-Difference in segment PID field 2
-Left: 12345
-Right: 
-Difference in segment PID field 3
-Left: 12345^^^MIE&1.2.840.114398.1.100&ISO^MR
-Right: 000168674
-Difference in segment PID field 4
-Left: 
-Right: 000168674
-Difference in segment PID field 5
-Left: MOUSE^MINNIE^S
-Right: GUNN^BEBE
-Difference in segment PID field 7
-Left: 19240101
-Right: 19821201
-Difference in segment PID field 11
-Left: 123 MOUSEHOLE LN^^FORT WAYNE^IN^46808
-Right: 
-Difference in segment PID field 16
-Left: 
-Right: M
-Difference in segment PID field 19
-Left: 
-Right: 890-12-3456
-Difference in segment PID field 22
-Left: 
-Right: N
-Difference in segment PID field 30
-Left: 
-Right: N
-Difference in segment PV1 field 2
-Left: O
-Right: I
-Difference in segment PV1 field 4
-Left: 
-Right: EL
-Difference in segment PV1 field 7
-Left: 71^DUCK^DONALD
-Right: 00976^PHYSICIAN^DAVID^G
-Difference in segment PV1 field 8
-Left: 
-Right: 976^PHYSICIAN^DAVID^G
-Difference in segment PV1 field 9
-Left: 
-Right: 01055^PHYSICIAN^RUTH^K~02807^PHYSICIAN^ERIC^LEE~07019^GI^ASSOCIATES~01255^PHYSICIAN^ADAM^I~02084^PHYSICIAN^SAYED~01116^PHYSICIAN^NURUDEEN^A~01434^PHYSICIAN^DONNA^K~02991^PHYSICIAN^NICOLE
-Difference in segment PV1 field 10
-Left: 
-Right: MED
-Difference in segment PV1 field 14
-Left: 
-Right: 7
-Difference in segment PV1 field 17
-Left: 
-Right: 00976^PHYSICIAN^DAVID^G
-Difference in segment PV1 field 19
-Left: 12376
-Right: ^^^Chart ID^Vis
-Difference in segment PV1 field 44
-Left: 20120410160227
-Right: 20120127204900
-Difference in segment PV1 field 45
-Left: 
-Right: null
-Difference in segment PV1 field 46
-Left: 
-Right: null
-Difference in segment PV1 field 47
-Left: 
-Right: null
-Difference in segment PV1 field 48
-Left: 
-Right: null
-Difference in segment PV1 field 49
-Left: 
-Right: null
-Difference in segment PV1 field 50
-Left: 
-Right: null
-Difference in segment ORC field 3
-Left: 12376
-Right: 
-Difference in segment ORC field 10
-Left: 100^DUCK^DASIY
-Right: 
-Difference in segment ORC field 12
-Left: 71^DUCK^DONALD
-Right: 00976^PHYSICIAN^DAVID^G
-Difference in segment ORC field 13
-Left: ^^^
-Right: null
-Difference in segment ORC field 14
-Left: 
-Right: null
-Difference in segment ORC field 15
-Left: 20120411070545
-Right: null
-Difference in segment ORC field 16
-Left: 
-Right: null
-Difference in segment ORC field 17
-Left: 
-Right: null
-Difference in segment ORC field 18
-Left: 
-Right: null
-Difference in segment ORC field 19
-Left: 
-Right: null
-Difference in segment ORC field 20
-Left: 
-Right: null
-Difference in segment OBR field 2
-Left: 
-Right: 88855701^STDOM
-Difference in segment OBR field 3
-Left: 12376
-Right: 88855701
-Difference in segment OBR field 4
-Left: cbc^CBC
-Right: 4083023^PT
-Difference in segment OBR field 5
-Left: R
-Right: 
-Difference in segment OBR field 7
-Left: 20120410160227
-Right: 20120226095400
-Difference in segment OBR field 10
-Left: 22^GOOF^GOOFY
-Right: 
-Difference in segment OBR field 13
-Left: Fasting: No
-Right: 
-Difference in segment OBR field 14
-Left: 201204101625
-Right: 20120226101300
-Difference in segment OBR field 15
-Left: 
-Right: Blood
-Difference in segment OBR field 16
-Left: 71^DUCK^DONALD
-Right: 01255
-Difference in segment OBR field 20
-Left: 
-Right: 000002012057000145
-Difference in segment OBR field 22
-Left: 201204101630
-Right: 20120226102500
-Difference in segment OBR field 24
-Left: 
-Right: LA
-Difference in segment OBR field 27
-Left: ^^^^^R
-Right: 1^^^20120226040000^^R~^^^^^R
-Difference in segment OBR field 36
-Left: 
-Right: 20120226040000
-Difference in segment OBR field 37
-Left: 
-Right: null
-Difference in segment OBR field 38
-Left: 
-Right: null
-Difference in segment OBR field 39
-Left: 
-Right: null
-Difference in segment OBR field 40
-Left: 
-Right: null
-Difference in segment OBR field 41
-Left: 
-Right: null
-Difference in segment OBR field 42
-Left: 
-Right: null
-Difference in segment OBR field 43
-Left: 
-Right: null
-Difference in segment OBR field 44
-Left: 85025
-Right: null
-Difference in segment OBR field 45
-Left: 
-Right: null
-Difference in segment OBX field 3
-Left: wbc^Wbc^Local^6690-2^Wbc^LN
-Right: PT Patient^PT
-Difference in segment OBX field 5
-Left: 7.0
-Right: 22.5
-Difference in segment OBX field 6
-Left: /nl
-Right: second(s)
-Difference in segment OBX field 7
-Left: 3.8-11.0
-Right: 11.7-14.9
-Difference in segment OBX field 8
-Left: 
-Right: H
-Difference in segment OBX field 14
-Left: 20120410160227
-Right: 20120226102500
-Difference in segment OBX field 15
-Left: lab
-Right: 
-Difference in segment OBX field 16
-Left: 12^XYZ LAB
-Right: 1^SYSTEM^SYSTEM
-Difference in segment OBX field 17
-Left: 
-Right: null
-Difference in segment OBX field 3
-Left: neutros^Neutros^Local^770-8^Neutros^LN
-Right: PT (INR)^INR
-Difference in segment OBX field 5
-Left: 68
-Right: 1.94
-Difference in segment OBX field 6
-Left: %
-Right: 
-Difference in segment OBX field 7
-Left: 40-82
-Right: 
-Difference in segment OBX field 14
-Left: 20120410160227
-Right: 20120226102500
-Difference in segment OBX field 15
-Left: lab
-Right: 
-Difference in segment OBX field 16
-Left: 12^XYZ LAB
-Right: 1^SYSTEM^SYSTEM
-Difference in segment OBX field 17
-Left: 
-Right: null
-Difference in segment OBX field 1
-Left: 3
-Right: 1
-Difference in segment OBX field 2
-Left: NM
-Right: 
-Difference in segment OBX field 3
-Left: lymphs^Lymphs^Local^736-9^Lymphs^LN
-Right: The optimal INR therapeutic range for stable patients on oral anticoagulants is 2.0 - 3.0.  With mechanical heart valves,
-Difference in segment OBX field 4
-Left: 
-Right: null
-Difference in segment OBX field 5
-Left: 20
-Right: null
-Difference in segment OBX field 6
-Left: %
-Right: null
-Difference in segment OBX field 7
-Left: 11-47
-Right: null
-Difference in segment OBX field 8
-Left: 
-Right: null
-Difference in segment OBX field 9
-Left: 
-Right: null
-Difference in segment OBX field 10
-Left: 
-Right: null
-Difference in segment OBX field 11
-Left: F
-Right: null
-Difference in segment OBX field 12
-Left: 
-Right: null
-Difference in segment OBX field 13
-Left: 
-Right: null
-Difference in segment OBX field 14
-Left: 20120410160227
-Right: null
-Difference in segment OBX field 15
-Left: lab
-Right: null
-Difference in segment OBX field 16
-Left: 12^XYZ LAB
-Right: null
-Difference in segment OBX field 17
-Left: 
-Right: null
-Difference in segment OBX field 1
-Left: 4
-Right: 2
-Difference in segment OBX field 2
-Left: NM
-Right: 
-Difference in segment OBX field 3
-Left: monos^Monos^Local^5905-5^Monos^LN
-Right: the range is 2.5 - 3.5.
-Difference in segment OBX field 4
-Left: 
-Right: null
-Difference in segment OBX field 5
-Left: 16
-Right: null
-Difference in segment OBX field 6
-Left: %
-Right: null
-Difference in segment OBX field 7
-Left: 4-15
-Right: null
-Difference in segment OBX field 8
-Left: H
-Right: null
-Difference in segment OBX field 9
-Left: 
-Right: null
-Difference in segment OBX field 10
-Left: 
-Right: null
-Difference in segment OBX field 11
-Left: F
-Right: null
-Difference in segment OBX field 12
-Left: 
-Right: null
-Difference in segment OBX field 13
-Left: 
-Right: null
-Difference in segment OBX field 14
-Left: 20120410160227
-Right: null
-Difference in segment OBX field 15
-Left: lab
-Right: null
-Difference in segment OBX field 16
-Left: 12^XYZ LAB
-Right: null
-Difference in segment OBX field 17
-Left: 
-Right: null
-Difference in segment OBX field 1
-Left: 5
-Right: 3
-Difference in segment OBX field 2
-Left: NM
-Right: null
-Difference in segment OBX field 3
-Left: eo^Eos^Local^713-8^Eos^LN
-Right: null
-Difference in segment OBX field 4
-Left: 
-Right: null
-Difference in segment OBX field 5
-Left: 3
-Right: null
-Difference in segment OBX field 6
-Left: %
-Right: null
-Difference in segment OBX field 7
-Left: 0-8
-Right: null
-Difference in segment OBX field 8
-Left: 
-Right: null
-Difference in segment OBX field 9
-Left: 
-Right: null
-Difference in segment OBX field 10
-Left: 
-Right: null
-Difference in segment OBX field 11
-Left: F
-Right: null
-Difference in segment OBX field 12
-Left: 
-Right: null
-Difference in segment OBX field 13
-Left: 
-Right: null
-Difference in segment OBX field 14
-Left: 20120410160227
-Right: null
-Difference in segment OBX field 15
-Left: lab
-Right: null
-Difference in segment OBX field 16
-Left: 12^XYZ LAB
-Right: null
-Difference in segment OBX field 17
-Left: 
-Right: null
-Difference in segment OBX field 1
-Left: 6
-Right: 4
-Difference in segment OBX field 2
-Left: NM
-Right: 
-Difference in segment OBX field 3
-Left: baso^Baso^Local^706-2^Baso^LN
-Right: Studies published in NEJM show that patients treated long-term with low intensity warfarin therapy for prevention of recurrent
-Difference in segment OBX field 4
-Left: 
-Right: null
-Difference in segment OBX field 5
-Left: 0
-Right: null
-Difference in segment OBX field 6
-Left: %
-Right: null
-Difference in segment OBX field 7
-Left: 0-1
-Right: null
-Difference in segment OBX field 8
-Left: 
-Right: null
-Difference in segment OBX field 9
-Left: 
-Right: null
-Difference in segment OBX field 10
-Left: 
-Right: null
-Difference in segment OBX field 11
-Left: F
-Right: null
-Difference in segment OBX field 12
-Left: 
-Right: null
-Difference in segment OBX field 13
-Left: 
-Right: null
-Difference in segment OBX field 14
-Left: 20120410160227
-Right: null
-Difference in segment OBX field 15
-Left: lab
-Right: null
-Difference in segment OBX field 16
-Left: 12^XYZ LAB
-Right: null
-Difference in segment OBX field 17
-Left: 
-Right: null
-Difference in segment OBX field 1
-Left: 7
-Right: 5
-Difference in segment OBX field 2
-Left: NM
-Right: 
-Difference in segment OBX field 3
-Left: ig^Imm Gran^Local^38518-7^Imm Gran^LN
-Right: venous thromboembolism (with a target INR of 1.5 - 2.0) had a superior outcome.  These results were seen in patients after a median
-Difference in segment OBX field 4
-Left: 
-Right: null
-Difference in segment OBX field 5
-Left: 0
-Right: null
-Difference in segment OBX field 6
-Left: %
-Right: null
-Difference in segment OBX field 7
-Left: 0-2
-Right: null
-Difference in segment OBX field 8
-Left: 
-Right: null
-Difference in segment OBX field 9
-Left: 
-Right: null
-Difference in segment OBX field 10
-Left: 
-Right: null
-Difference in segment OBX field 11
-Left: F
-Right: null
-Difference in segment OBX field 12
-Left: 
-Right: null
-Difference in segment OBX field 13
-Left: 
-Right: null
-Difference in segment OBX field 14
-Left: 20120410160227
-Right: null
-Difference in segment OBX field 15
-Left: lab
-Right: null
-Difference in segment OBX field 16
-Left: 12^XYZ LAB
-Right: null
-Difference in segment OBX field 17
-Left: 
-Right: null
-Difference in segment OBX field 1
-Left: 8
-Right: 6
-Difference in segment OBX field 2
-Left: NM
-Right: 
-Difference in segment OBX field 3
-Left: rbc^Rbc^Local^789-8^Rbc^LN
-Right: 6 months of full dose anti-coagulation.
-Difference in segment OBX field 4
-Left: 
-Right: null
-Difference in segment OBX field 5
-Left: 4.02
-Right: null
-Difference in segment OBX field 6
-Left: /pl
-Right: null
-Difference in segment OBX field 7
-Left: 4.07-4.92
-Right: null
-Difference in segment OBX field 8
-Left: L
-Right: null
-Difference in segment OBX field 9
-Left: 
-Right: null
-Difference in segment OBX field 10
-Left: 
-Right: null
-Difference in segment OBX field 11
-Left: F
-Right: null
-Difference in segment OBX field 12
-Left: 
-Right: null
-Difference in segment OBX field 13
-Left: 
-Right: null
-Difference in segment OBX field 14
-Left: 20120410160227
-Right: null
-Difference in segment OBX field 15
-Left: lab
-Right: null
-Difference in segment OBX field 16
-Left: 12^XYZ LAB
-Right: null
-Difference in segment OBX field 17
-Left: 
-Right: null
+Business Challenge
+Our current solution architecture process is manual, inconsistent, and time-consuming, leading to:
+
+-Delayed project timelines due to slow ticket processing
+-Inconsistent solution quality across the enterprise
+-Inefficient resource allocation and workload distribution
+-Human errors in requirements interpretation and solution design
+
+Proposed Solution Overview
+We're implementing an AI-powered automation platform that transforms how we handle solution architecture requests from submission to delivery.
+----------------------------
+Technical Architecture Highlights
+
+Core Components:
+Ingestion Layer: ServiceNow and SharePoint integration for ticket intake
+Google Cloud Platform: Centralized processing and AI capabilities
+Vertex AI: Powers intelligent analysis and recommendations
+BigQuery: Data warehousing for historical patterns and analytics
+Compute Engine: Scalable processing infrastructure
+Cloud Storage: Secure document and artifact management
+------------------
+Core Use Cases
+1. Intelligent Ticket Processing
+Automatic Content Analysis: AI analyzes incoming architecture request tickets to understand requirements, scope, and complexity
+Metadata Extraction: Automatically tags tickets with relevant categories, technologies, domains, and priority levels
+Content Classification: Categorizes requests by type (new solution, enhancement, integration, etc.)
+
+2. Smart Resource Assignment
+Skills-Based Routing: Matches tickets to architects based on domain expertise and technical skills
+Workload Balancing: Considers current capacity and availability of solution architects
+Historical Performance: Routes based on past project success and architect specializations
+
+3. Knowledge Management & Reusability
+Solution Recommendation: Suggests existing reference architectures or similar past solutions
+Pattern Recognition: Identifies common architectural patterns from historical data
+Best Practice Enforcement: Ensures adherence to enterprise standards and proven methodologies
+
+4. Automated Artifact Generation
+High-Level Design (HLD) Creation: Generates architectural diagrams and documentation in markup/script format
+Supporting Documentation: Creates technical specifications, deployment guides, and configuration documents
+Template Population: Auto-fills standard architectural templates with project-specific details
+
+5. Effort Estimation
+LOE (Level of Effort) Calculation: Provides time and resource estimates for implementation
+T-Shirt Sizing: Assigns relative complexity ratings (S, M, L, XL) to architecture requests
+Resource Planning: Helps in project planning and capacity management
+
+Key Automation Concepts
+-------------------------
+-Process Standardization
+Ensures consistent quality across all architectural solutions. Maintains enterprise-wide standards and compliance. Reduces variability in solution delivery
+
+-Continuous Learning
+AI improves over time by learning from historical ticket patterns. Builds institutional knowledge from past architectural decisions. Evolves recommendations based on successful implementations
+
+-End-to-End Automation
+Covers the complete ticket lifecycle from submission to solution delivery. Reduces manual touchpoints and human error potential. Accelerates overall turnaround times for architecture requests
+
+This solution essentially transforms a manual, inconsistent process into an intelligent, automated system that leverages AI to handle the most time-consuming and error-prone aspects of solution architecture delivery.
+
+
+###################33
+
+Our AI-powered solution architecture automation platform fundamentally addresses the complete Software Development Life Cycle by transforming manual, inconsistent processes into a structured, repeatable methodology. The system orchestrates the entire SDLC workflow—from automated requirements analysis and extraction, through intelligent design generation with HLD artifacts, to resource allocation and Based on the requirement assit with LOE estimation.
+It enforces enterprise SDLC standards at every phase, ensuring quality gates are met, architectural patterns are consistently applied, and deployment strategies align with our governance frameworks. Rather than simply processing tickets, this platform complience with SDLC best practices mandatory rather than optional."
+
+Key Talking Points to Emphasize:
+"Complete SDLC orchestration, not just task automation"
+"Enforces structured methodology across all phases"
+"Industrializes our development lifecycle management"
+"Makes SDLC compliance mandatory, not optional"
+
+"SDLC is achieved through AI-orchestrated automation of the complete development lifecycle—from intelligent requirements analysis and design generation to planning, implementation guidance, and deployment strategies—ensuring every project follows structured, enterprise-standard development phases automatically."
+
+"AI models analyze ticket content to extract requirements, generate HLD artifacts and technical specifications, produce effort estimates, recommend architectural patterns, and create deployment plans—automating each SDLC phase through machine learning-driven document and code generation
+
+----------------------------------
