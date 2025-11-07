@@ -9,21 +9,235 @@ Why do we need it?
 Efficiently narrows down the number of record pairs to compare. Reduces computational cost by only comparing records that share a key (i.e., are likely to be matches). Supports both exact and fuzzy matching strategies.
 
 
+CREATE TABLE STG_USER_KEYS (
+  stg_id   NUMBER NOT NULL,
+  key_type VARCHAR2(30) NOT NULL,   -- 'PRS_PROFILE_ID','PATIENT_ID','EMAIL','PHONE7','NAMEZIP','STREETNAME'
+  key_val  VARCHAR2(300) NOT NULL
+);
 
+-- Deterministic relations (always safe)
+INSERT INTO STG_USER_KEYS SELECT stg_id,'PRS_PROFILE_ID',prs_profile_id FROM STG_USER WHERE prs_profile_id IS NOT NULL;
+INSERT INTO STG_USER_KEYS SELECT stg_id,'PATIENT_ID',   patient_id      FROM STG_USER WHERE patient_id      IS NOT NULL;
+
+-- Strong exacts / blocks
+INSERT INTO STG_USER_KEYS SELECT stg_id,'EMAIL',  email_norm  FROM STG_USER WHERE email_norm  IS NOT NULL;
+INSERT INTO STG_USER_KEYS SELECT stg_id,'PHONE7', phone_last7 FROM STG_USER WHERE phone_last7 IS NOT NULL;
+
+-- Tight blocks (keep user sets small)
+INSERT INTO STG_USER_KEYS
+SELECT stg_id,'NAMEZIP',
+       SUBSTR(last_up,1,1)||'|'||SUBSTR(first_up,1,1)||'|'||zip_up
+FROM STG_USER
+WHERE last_up IS NOT NULL AND first_up IS NOT NULL AND zip_up IS NOT NULL;
+
+INSERT INTO STG_USER_KEYS
+SELECT stg_id,'STREETNAME',
+       NVL(REGEXP_SUBSTR(address_line_1,'^\d+'),'')||'|'||
+       NVL(REGEXP_SUBSTR(UPPER(address_line_1),'[A-Z]+'),'')||'|'||
+       last_up
+FROM STG_USER
+WHERE address_line_1 IS NOT NULL AND last_up IS NOT NULL;
+
+
+
+-----------------------------
 Build User Pairs (Only Within Blocks)
 How it does:
 Creates a table (STG_MATCH_USERS) of all possible pairs of user records that share at least one matching key. Only pairs within the same block/key type are considered. Removes pairs where both records have a gender and the genders conflict.
 Why do we need it?
 Instead of comparing every record to every other record (which is slow and expensive), we only compare records that are likely to match (those sharing a key). This step prepares the data for the next phase: scoring the similarity of each pair (fuzzy matching). The gender check further reduces false positives by eliminating obviously mismatched pairs.
 
+------Build user pairs (only within blocks)
+
+BEGIN EXECUTE IMMEDIATE 'DROP TABLE STG_MATCH_USERS PURGE'; EXCEPTION WHEN OTHERS THEN NULL; END;
+/
+
+CREATE TABLE STG_MATCH_USERS AS
+SELECT DISTINCT
+  LEAST(k1.stg_id, k2.stg_id)    AS stg_a,
+  GREATEST(k1.stg_id, k2.stg_id) AS stg_b,
+  k1.key_type                    AS block_type
+FROM STG_USER_KEYS k1
+JOIN STG_USER_KEYS k2
+  ON k1.key_type = k2.key_type
+ AND k1.key_val  = k2.key_val
+WHERE k1.stg_id < k2.stg_id
+  AND k1.key_type IN ('PRS_PROFILE_ID','PATIENT_ID','EMAIL','PHONE7','NAMEZIP','STREETNAME');
+
+-- Optional guard: drop pairs with conflicting gender when both present
+DELETE FROM STG_MATCH_USERS c
+WHERE EXISTS (
+  SELECT 1
+  FROM STG_USER a, STG_USER b
+  WHERE a.stg_id = c.stg_a AND b.stg_id = c.stg_b
+    AND a.gender_code IS NOT NULL AND b.gender_code IS NOT NULL
+    AND a.gender_code <> b.gender_code
+);
+COMMIT;
+
+-----Fuzzy score each pair (dynamic weights)
+
+BEGIN EXECUTE IMMEDIATE 'DROP TABLE STG_MATCH_SCORED PURGE'; EXCEPTION WHEN OTHERS THEN NULL; END;
+/
+
+CREATE TABLE STG_MATCH_SCORED AS
+SELECT
+  c.stg_a, c.stg_b, c.block_type,
+
+  /* similarities 0..100 */
+  ( UTL_MATCH.JARO_WINKLER_SIMILARITY(a.first_up, b.first_up)
+  + UTL_MATCH.JARO_WINKLER_SIMILARITY(a.last_up,  b.last_up) )/2    AS name_sim,
+
+  CASE WHEN a.middle_up IS NOT NULL AND b.middle_up IS NOT NULL
+       THEN UTL_MATCH.JARO_WINKLER_SIMILARITY(a.middle_up, b.middle_up)
+       ELSE 100 END                                                AS mid_sim,
+
+  CASE WHEN a.dob IS NOT NULL AND b.dob IS NOT NULL THEN
+         CASE WHEN a.dob = b.dob THEN 100
+              WHEN ABS(a.dob - b.dob) <= 1 THEN 85
+              ELSE 0 END
+       ELSE 0 END                                                  AS dob_sim,
+
+  LEAST(100,
+    0.70*UTL_MATCH.EDIT_DISTANCE_SIMILARITY(NVL(a.address_line_1,''), NVL(b.address_line_1,''))
+  + 0.15*UTL_MATCH.JARO_WINKLER_SIMILARITY(NVL(a.city_name,''), NVL(b.city_name,''))
+  + 0.15*CASE WHEN NVL(a.zip_up,'') = NVL(b.zip_up,'') AND a.zip_up IS NOT NULL THEN 100 ELSE 0 END
+  )                                                                AS addr_sim,
+
+  CASE WHEN a.email_norm IS NOT NULL AND b.email_norm IS NOT NULL THEN
+         CASE WHEN a.email_norm = b.email_norm THEN 100
+              WHEN SUBSTR(a.email_norm,1,INSTR(a.email_norm,'@')-1)
+                   = SUBSTR(b.email_norm,1,INSTR(b.email_norm,'@')-1) THEN 70
+              ELSE 0 END
+       ELSE 0 END                                                  AS email_sim,
+
+  CASE WHEN a.phone_digits IS NOT NULL AND b.phone_digits IS NOT NULL AND a.phone_digits = b.phone_digits THEN 100
+       WHEN a.phone_last7  IS NOT NULL AND b.phone_last7  IS NOT NULL AND a.phone_last7  = b.phone_last7  THEN 80
+       ELSE 0 END                                                  AS phone_sim,
+
+  /* dynamic weights (only count if feature exists on BOTH sides) */
+  /* base: name .30, middle .10, dob .30, addr .15, email .10, phone .05 */
+  CASE WHEN a.first_up IS NOT NULL AND b.first_up IS NOT NULL AND a.last_up IS NOT NULL AND b.last_up IS NOT NULL THEN 0.30 ELSE 0 END AS w_name,
+  CASE WHEN a.middle_up IS NOT NULL AND b.middle_up IS NOT NULL THEN 0.10 ELSE 0 END AS w_mid,
+  CASE WHEN a.dob IS NOT NULL AND b.dob IS NOT NULL THEN 0.30 ELSE 0 END             AS w_dob,
+  CASE WHEN (a.address_line_1 IS NOT NULL OR a.city_name IS NOT NULL OR a.zip_up IS NOT NULL)
+         AND (b.address_line_1 IS NOT NULL OR b.city_name IS NOT NULL OR b.zip_up IS NOT NULL)
+       THEN 0.15 ELSE 0 END                                                           AS w_addr,
+  CASE WHEN a.email_norm IS NOT NULL AND b.email_norm IS NOT NULL THEN 0.10 ELSE 0 END AS w_email,
+  CASE WHEN (a.phone_digits IS NOT NULL OR a.phone_last7 IS NOT NULL)
+         AND (b.phone_digits IS NOT NULL OR b.phone_last7 IS NOT NULL)
+       THEN 0.05 ELSE 0 END                                                           AS w_phone,
+
+  /* final score 0..1 */
+  CASE
+    WHEN ( (CASE WHEN a.first_up IS NOT NULL AND b.first_up IS NOT NULL AND a.last_up IS NOT NULL AND b.last_up IS NOT NULL THEN 0.30 ELSE 0 END)
+         + (CASE WHEN a.middle_up IS NOT NULL AND b.middle_up IS NOT NULL THEN 0.10 ELSE 0 END)
+         + (CASE WHEN a.dob IS NOT NULL AND b.dob IS NOT NULL THEN 0.30 ELSE 0 END)
+         + (CASE WHEN (a.address_line_1 IS NOT NULL OR a.city_name IS NOT NULL OR a.zip_up IS NOT NULL)
+                    AND (b.address_line_1 IS NOT NULL OR b.city_name IS NOT NULL OR b.zip_up IS NOT NULL)
+                 THEN 0.15 ELSE 0 END)
+         + (CASE WHEN a.email_norm IS NOT NULL AND b.email_norm IS NOT NULL THEN 0.10 ELSE 0 END)
+         + (CASE WHEN (a.phone_digits IS NOT NULL OR a.phone_last7 IS NOT NULL)
+                    AND (b.phone_digits IS NOT NULL OR b.phone_last7 IS NOT NULL)
+                 THEN 0.05 ELSE 0 END) ) > 0
+    THEN ROUND(
+      ( 0.30*( ( UTL_MATCH.JARO_WINKLER_SIMILARITY(a.first_up, b.first_up)
+               + UTL_MATCH.JARO_WINKLER_SIMILARITY(a.last_up,  b.last_up) )/2 )/100
+      + 0.10*( CASE WHEN a.middle_up IS NOT NULL AND b.middle_up IS NOT NULL
+                    THEN UTL_MATCH.JARO_WINKLER_SIMILARITY(a.middle_up, b.middle_up)
+                    ELSE 100 END )/100
+      + 0.30*( CASE WHEN a.dob IS NOT NULL AND b.dob IS NOT NULL THEN
+                      CASE WHEN a.dob = b.dob THEN 100
+                           WHEN ABS(a.dob - b.dob) <= 1 THEN 85
+                           ELSE 0 END
+                    ELSE 0 END )/100
+      + 0.15*( LEAST(100,
+              0.70*UTL_MATCH.EDIT_DISTANCE_SIMILARITY(NVL(a.address_line_1,''), NVL(b.address_line_1,''))
+            + 0.15*UTL_MATCH.JARO_WINKLER_SIMILARITY(NVL(a.city_name,''), NVL(b.city_name,''))
+            + 0.15*CASE WHEN NVL(a.zip_up,'') = NVL(b.zip_up,'') AND a.zip_up IS NOT NULL THEN 100 ELSE 0 END
+            ) )/100
+      + 0.10*( CASE WHEN a.email_norm IS NOT NULL AND b.email_norm IS NOT NULL THEN
+                      CASE WHEN a.email_norm = b.email_norm THEN 100
+                           WHEN SUBSTR(a.email_norm,1,INSTR(a.email_norm,'@')-1)
+                              = SUBSTR(b.email_norm,1,INSTR(b.email_norm,'@')-1) THEN 70
+                           ELSE 0 END
+                    ELSE 0 END )/100
+      + 0.05*( CASE
+                 WHEN a.phone_digits IS NOT NULL AND b.phone_digits IS NOT NULL
+                      AND a.phone_digits = b.phone_digits THEN 100
+                 WHEN a.phone_last7 IS NOT NULL AND b.phone_last7 IS NOT NULL
+                      AND a.phone_last7 = b.phone_last7 THEN 80
+                 ELSE 0 END )/100
+      , 4)
+    ELSE 0
+  END AS score
+
+FROM STG_MATCH_USERS c
+JOIN STG_USER a ON a.stg_id = c.stg_a
+JOIN STG_USER b ON b.stg_id = c.stg_b
+;
 
 
+-----------------------------------------------
 Fuzzy Score Each Pair (Dynamic Weights)
 How it does:
 For each candidate user pair (from blocking), calculates similarity scores for various fields (name, DOB, address, email, phone, etc.) using fuzzy matching algorithms like Jaro-Winkler and Edit Distance. Assigns dynamic weights to each field based on data availability (e.g., if both have DOB, DOB gets weight; if not, it doesn’t). Computes a final overall similarity score (0 to 1) for each pair.
 Why do we need it?
 Not all duplicates are exact matches; fuzzy scoring lets us catch records that are very similar but not identical (e.g., typos, nicknames, address variations). Dynamic weights ensure the score is fair and robust even if some fields are missing. This step is essential for high-quality deduplication, especially when integrating data from multiple, messy sources.
 
+BEGIN EXECUTE IMMEDIATE 'DROP TABLE DEDUP_LOSERS PURGE'; EXCEPTION WHEN OTHERS THEN NULL; END;
+/
+
+CREATE TABLE DEDUP_LOSERS AS
+SELECT DISTINCT
+  CASE
+    /* Deterministic blocks always dedup */
+    WHEN s.block_type IN ('PRS_PROFILE_ID','PATIENT_ID') THEN
+      CASE
+        WHEN a.source_system = 'PRS' AND b.source_system <> 'PRS' THEN b.stg_id
+        WHEN b.source_system = 'PRS' AND a.source_system <> 'PRS' THEN a.stg_id
+        WHEN a.source_system = 'PRS' AND b.source_system = 'PRS'
+             THEN CASE WHEN NVL(a.created_at_src, DATE '1900-01-01') >= NVL(b.created_at_src, DATE '1900-01-01')
+                       THEN b.stg_id ELSE a.stg_id END
+        ELSE -- neither PRS
+             CASE
+               WHEN NVL(a.created_at_src, DATE '1900-01-01') > NVL(b.created_at_src, DATE '1900-01-01') THEN b.stg_id
+               WHEN NVL(a.created_at_src, DATE '1900-01-01') < NVL(b.created_at_src, DATE '1900-01-01') THEN a.stg_id
+               ELSE CASE WHEN a.stg_id < b.stg_id THEN a.stg_id ELSE b.stg_id END
+             END
+      END
+
+    /* Fuzzy blocks: only dedup if score ≥ 0.90 */
+    WHEN s.score >= 0.90 THEN
+      CASE
+        WHEN a.source_system = 'PRS' AND b.source_system <> 'PRS' THEN b.stg_id
+        WHEN b.source_system = 'PRS' AND a.source_system <> 'PRS' THEN a.stg_id
+        WHEN a.source_system = 'PRS' AND b.source_system = 'PRS'
+             THEN CASE WHEN NVL(a.created_at_src, DATE '1900-01-01') >= NVL(b.created_at_src, DATE '1900-01-01')
+                       THEN b.stg_id ELSE a.stg_id END
+        ELSE -- neither PRS
+             CASE
+               WHEN NVL(a.created_at_src, DATE '1900-01-01') > NVL(b.created_at_src, DATE '1900-01-01') THEN b.stg_id
+               WHEN NVL(a.created_at_src, DATE '1900-01-01') < NVL(b.created_at_src, DATE '1900-01-01') THEN a.stg_id
+               ELSE CASE WHEN a.stg_id < b.stg_id THEN a.stg_id ELSE b.stg_id END
+             END
+      END
+  END AS loser_id
+FROM STG_MATCH_SCORED s
+JOIN STG_USER a ON a.stg_id = s.stg_a
+JOIN STG_USER b ON b.stg_id = s.stg_b
+WHERE s.block_type IN ('PRS_PROFILE_ID','PATIENT_ID') OR s.score >= 0.90;
+
+----- Keeping user records with no-duplicates
+
+CREATE OR REPLACE VIEW STG_USER_SOT AS
+SELECT s.*
+FROM STG_USER s
+LEFT JOIN DEDUP_LOSERS L
+  ON L.loser_id = s.stg_id
+WHERE L.loser_id IS NULL;
+
+CREATE TABLE SOT_PERSON AS SELECT * FROM STG_USER_SOT;
 
 
 For each strong pair (deterministic match or fuzzy score ≥ 0.90), decides which record to keep and which to drop:
