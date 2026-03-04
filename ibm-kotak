@@ -1,0 +1,154 @@
+High-Level Architecture (Past vs Current)
+
+Can you share the as-is (IBM) architecture diagram and the to-be (Kodak) architecture diagram?
+What components changed between IBM and Kodak (hardware only, drivers, capture engine, server config, network paths)?
+Were any servers added, removed, or reconfigured as part of the transition?
+Were there any changes in authentication, access control, or service accounts?
+
+2. Scanner Network Architecture 
+Physical & Network Placement
+Where are scanners physically located (branch floor, centralized scan room, back office)?
+
+Are scanners:
+USB-connected directly to operator workstations?
+Network-connected (Ethernet)?
+Connected via scan server?
+Are scanners assigned:
+Static IP?
+DHCP reservation?
+VLAN segmentation?
+
+Which network zone are scanners placed in?
+User VLAN?
+Server VLAN?
+Restricted device VLAN?
+
+Are there firewall rules governing communication between:
+Scanner → Workstation?
+Workstation → OptimaXX server?
+OptimaXX → downstream systems?
+
+Were any firewall or proxy changes required when Kodak was introduced?
+
+3. Scanner Configuration & Driver Layer
+Past (IBM)
+Where were IBM drivers installed?
+  Locally on each workstation?
+  On a centralized scan server?
+Were drivers managed centrally (GPO / SCCM / imaging standard)?
+
+Was scanner configuration (DPI, profiles) stored:
+  In driver?
+  In OptimaXX?
+  In registry/local config files?
+
+Current (Kodak)
+Where are Kodak drivers installed?
+Are driver versions standardized across all stations?
+Is configuration managed centrally or locally?
+Is firmware centrally managed or manually updated?
+Are scanners shared across multiple users or dedicated per station?
+
+4. Application Integration Architecture
+
+How does OptimaXX interact with the scanner?
+  Direct TWAIN/ISIS call?
+  Through a capture service?
+  Through a Kodak capture component?
+Is scanning triggered:
+  Manually by operator?
+  Automatically by workflow?
+  Via hot folder monitoring?
+Are other applications besides OptimaXX using the scanner?
+  If yes, which applications?
+  Is there driver contention?
+Is the scanner locked to one application at a time?
+Is any middleware involved between scanner and OptimaXX?
+
+5. Server-Side Architecture
+Is there a centralized OptimaXX server?
+What roles does it perform?
+  Capture processing?
+  OCR/barcode engine?
+  Export?
+  Validation?
+  Workflow routing?
+Where are scanned images temporarily stored?
+  Local workstation disk?
+  Network share?
+  Application server?
+  Database BLOB?
+Is shared storage used (SAN/NAS)?
+Are there multiple OptimaXX servers (load balancing, clustering)?
+Are background services running as Windows services?
+  Under what service account?
+
+6. Data Flow – End-to-End
+
+Please walk through the technical data path:
+
+Document scanned →Image generated →Image stored where (temporary location) →OCR/barcode processing →Metadata extraction →Batch validation →Export packaging →Transfer to downstream system →
+
+Key clarifications:
+At which point does image leave the workstation?
+Is processing synchronous or asynchronous?
+Is export event-driven or scheduled?
+
+7. Storage & Data Handling
+Are images written locally before upload?
+How long do images remain on workstation disk?
+Is there automatic cleanup?
+Are images encrypted at rest?
+Are transmission paths encrypted (SMB signing, SFTP, HTTPS)?
+Are logs centralized (SIEM)?
+
+8. Performance Architecture
+Where does OCR/barcode processing occur?
+  On workstation?
+  On OptimaXX server?
+  On separate OCR engine server?
+Is there queueing mechanism?
+Are there known bottlenecks?
+  Network latency?
+  Disk I/O?
+  CPU on capture server?
+Did architecture change to improve performance during Kodak rollout?
+
+9. Resiliency & Failover
+What happens if: Scanner fails? Workstation crashes? OptimaXX server is down? Network share unavailable?
+Is there retry logic for export?
+Are batches recoverable after failure?
+Are there DR procedures?
+Is there backup of: Images? Metadata? Configuration?
+
+10. Environment Separation
+Are DEV / UAT / PROD environments separate?
+Are scanners mapped differently in each environment?
+Is configuration promoted through change management?
+Is there version control of scan profiles?
+
+11. Security & Access Controls
+Who can modify scan profiles?
+Who can access raw scanned images?
+Are service accounts least-privileged?
+Is there audit logging for: Scan event? Batch close? Export? Deletion?
+Are there compliance constraints (HIPAA, internal policy)?
+
+12. Monitoring & Observability
+How is scanner health monitored?
+Are driver errors logged centrally?
+Are export failures alerted automatically?
+Is there performance reporting (pages/hour, error rate)?
+Any dashboard or reporting tool used?
+
+13. Change Management – IBM to Kodak
+What exact components were changed? Hardware , Driver, Scan profile, OptimaXX configuration, Server configuration, Network rules
+Was regression testing performed? Was baseline performance compared? Were rollback procedures tested?
+
+14. Additional Important Architecture Questions
+Is there any dependency on legacy IBM libraries still present?
+Are there hard-coded paths in workflows?
+Are there scheduled cleanup jobs?
+Is there antivirus scanning impacting scan folders?
+Are Windows updates known to impact drivers?
+Is VDI involved (if yes, how are scanners mapped)?
