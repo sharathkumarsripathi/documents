@@ -1,2 +1,14 @@
 
 What have been your biggest performance accomplishments (e.g., goals achieved) so far this year?  Include how you demonstrated the Quest Way and our 5 C's (Customer First, Care, Collaboration, Continuous Improvement and Curiosity).  If you are a People Leader, please include how you performed against the current year People Leader goal.
+
+I focused on designing solutions that support laboratory operations, reduce business disruption, and improve reliability for end users and operational teams. I considered the complete customer experience, including performance, availability, data accuracy, recoverability, and supportability.
+
+Care: I carefully evaluated the impact of architecture decisions on patient information, business operations, security, compliance, and production stability. I considered access controls, encryption, auditability, data retention, exception handling, and recovery requirements to help ensure that solutions protect Quest, its patients, and its customers.
+
+Collaboration: I worked closely with business stakeholders, onsite teams, developers, infrastructure teams, security teams, application owners, vendors, and production support. I facilitated technical discussions, asked detailed discovery questions, clarified requirements, identified gaps, and helped teams align on practical and supportable solutions.
+
+Continuous Improvement: I looked for opportunities to reduce manual effort, improve automation, strengthen exception handling, standardize architecture documentation, and enhance monitoring and operational readiness. I evaluated alternative solution options rather than simply duplicating existing processes and recommended approaches that improve long-term maintainability and scalability.
+
+Curiosity: I actively learned unfamiliar technologies, existing production configurations, operational workflows, and vendor capabilities. I investigated how systems currently work, challenged assumptions, and asked detailed questions to understand dependencies and risks before recommending a solution.
+
+Overall, my work has helped strengthen architecture governance, identify risks earlier, improve collaboration between technical and business teams, and support the delivery of secure, scalable, reliable, and operationally sustainable solutions. I will continue to focus on improving architecture standards, expanding my knowledge of Quest platforms and business processes,
