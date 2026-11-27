@@ -1,0 +1,204 @@
+AWS CERTIFIED CLOUD PRACTITIONER - CLF-C02
+
+EXAM
+90 minutes | 65 questions | 700/1000 pass
+Domains:
+24% Cloud Concepts
+30% Security and Compliance
+34% Cloud Technology and Services
+12% Billing, Pricing and Support
+
+CHAPTER 1 - CLOUD CONCEPTS
+Cloud benefits:
+- Trade fixed expense for variable expense
+- Economies of scale
+- Stop guessing capacity
+- Increase speed and agility
+- Go global in minutes
+
+Deployment models:
+- Cloud: AWS-hosted
+- Hybrid: AWS plus on-premises
+- Private cloud: On-premises infrastructure
+
+Well-Architected pillars:
+1. Operational Excellence
+2. Security
+3. Reliability
+4. Performance Efficiency
+5. Cost Optimization
+6. Sustainability
+
+CHAPTER 2 - GLOBAL INFRASTRUCTURE
+Region: Geographic location containing multiple Availability Zones.
+Availability Zone: One or more isolated data centers.
+High availability: Deploy across at least two Availability Zones.
+
+Edge locations support CloudFront, Route 53, Global Accelerator and Shield.
+Outposts: AWS infrastructure on-premises.
+Local Zones: AWS infrastructure closer to users.
+Wavelength: AWS compute near 5G networks.
+
+CHAPTER 3 - SECURITY AND IAM
+Shared responsibility:
+AWS protects security of the cloud.
+Customer protects security in the cloud.
+
+IAM identities:
+- User: Individual or application
+- Group: Collection of users
+- Role: Temporary permissions
+- Policy: Permission rules
+
+Use least privilege and MFA.
+Explicit Deny always wins over Allow.
+Do not use the root account for daily work.
+
+Important security services:
+IAM = access control
+IAM Identity Center = workforce SSO
+Organizations = multi-account management
+KMS = encryption keys
+Secrets Manager = secrets and rotation
+CloudTrail = API audit logs
+CloudWatch = metrics, logs and alarms
+Config = configuration compliance
+GuardDuty = threat detection
+Macie = sensitive data discovery in S3
+Inspector = vulnerability assessment
+Shield = DDoS protection
+WAF = filter web requests
+Security Hub = central security findings
+
+CHAPTER 4 - COMPUTE
+EC2: Virtual servers
+Lambda: Event-driven serverless code
+ECS: Containers
+EKS: Managed Kubernetes
+Fargate: Serverless containers
+Elastic Beanstalk: Managed application deployment
+Lightsail: Simple servers and websites
+
+EC2 purchasing:
+On-Demand = Flexible
+Savings Plans/Reserved = Predictable discounts
+Spot = Lowest cost, interruptible
+Dedicated Host = Physical host control
+
+CHAPTER 5 - STORAGE
+S3 = Object storage
+EBS = EC2 block storage
+EFS = Shared Linux file storage
+FSx = Managed Windows or specialized file storage
+Snow Family = Physical data transfer
+Storage Gateway = Hybrid storage
+
+S3 storage classes:
+- Standard: Frequent access
+- Standard-IA: Infrequent access
+- One Zone-IA: One-AZ infrequent access
+- Intelligent-Tiering: Automatic cost optimization
+- Glacier Instant: Archival instant access
+- Glacier Flexible: Archival flexible retrieval
+- Deep Archive: Lowest-cost archival
+
+CHAPTER 6 - DATABASES
+RDS = Managed relational database
+Aurora = AWS relational database
+DynamoDB = Serverless key-value/document database
+Redshift = Data warehouse
+ElastiCache = In-memory cache
+Neptune = Graph database
+DMS = Database migration
+
+RDS/Aurora: SQL and joins
+DynamoDB: Serverless NoSQL
+Redshift: Analytics
+
+CHAPTER 7 - NETWORKING
+VPC: Isolated virtual network
+Subnet: Segment inside a VPC
+Internet Gateway: Public internet access
+NAT Gateway: Private subnet outbound access
+VPC Endpoint: Private AWS service access
+Direct Connect: Dedicated private network
+VPN: Encrypted internet network
+Security Group: Stateful firewall
+Network ACL: Stateless subnet firewall
+
+Route 53 = DNS
+ALB = HTTP/HTTPS traffic
+NLB = TCP/UDP traffic
+CloudFront = Global content delivery
+Global Accelerator = Improve global availability/performance
+
+CHAPTER 8 - INTEGRATION AND OPERATIONS
+SQS = Decoupled message queue
+SNS = Publish-subscribe notifications
+EventBridge = Event routing
+Step Functions = Workflow orchestration
+Kinesis = Real-time streaming
+
+CloudFormation = Infrastructure as code
+Systems Manager = Operational management
+Trusted Advisor = AWS best-practice recommendations
+AWS Health = Account-specific AWS events
+X-Ray = Distributed tracing
+Auto Scaling = Adjust capacity
+ELB = Distribute traffic
+
+CHAPTER 9 - MIGRATION
+Application Migration Service = Lift-and-shift servers
+DMS = Migrate databases
+DataSync = Transfer data to AWS
+Snow Family = Bulk offline transfer
+Migration Hub = Track migration projects
+
+CHAPTER 10 - BILLING AND SUPPORT
+Pricing Calculator = Estimate planned costs
+Cost Explorer = Analyze historical spending
+Budgets = Spending alerts
+Cost and Usage Report = Detailed usage and cost data
+Cost allocation tags = Categorize cost
+
+Consolidated billing = Combined account billing
+Cost commitment options:
+Reserved Instances = Commitment-based discount
+Savings Plans = Flexible commitment-based discount
+Spot = Spare capacity discount
+
+Support:
+Basic = Free
+Developer = Business-hours support
+Business = 24x7 support
+Enterprise On-Ramp = Enhanced support and TAM pool
+Enterprise = Designated TAM and Concierge
+
+QUICK SERVICE TRAPS
+CloudTrail: API audit
+CloudWatch: Metrics and monitoring
+Config: Configuration compliance
+S3: Object storage
+EBS: EC2 block storage
+EFS: Shared file storage
+RDS: Relational SQL database
+DynamoDB: Key-value/document NoSQL
+SQS: Queue
+SNS: Pub/sub
+KMS: Manage encryption keys
+Secrets Manager: Store/rotate secrets
+Direct Connect: Dedicated network
+VPN: Internet-based encrypted network
+
+EXAM TIP
+For managed-serverless questions, choose AWS-managed services unless control is explicitly required.
+For "audit API calls": CloudTrail
+For "resource configuration": AWS Config
+For "metrics and alarms": CloudWatch
+For "decouple components": SQS
+For "send to multiple subscribers": SNS
+For "estimate planned cost": Pricing Calculator
+For "historical cost": Cost Explorer
+
+MOMENTUM QUESTION
+A private subnet needs internet downloads. Choose NAT Gateway.
